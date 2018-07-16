@@ -1,0 +1,11 @@
+[tool.poetry]
+name = "lute"
+version = "0.1.0"
+description = "Next iteration of our NLU module"
+authors = []
+
+[tool.poetry.dependencies]
+python = "^3.5"
+
+[tool.poetry.dev-dependencies]
+pytest = "^3.0"

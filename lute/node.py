@@ -14,19 +14,25 @@ class Node(ABC):
     def name(self):
         return self._name
 
-    def __str__(self):
-        return self.name
-
-    @abstractmethod
-    def serialize(self):
-        pass
-
     @property
     def value(self, *args, **kwargs):
         return self._output_val
 
     def clear(self):
         self._output_val = None
+
+    @abstractmethod
+    def serialize(self):
+        pass
+
+    def __str__(self):
+        return self.name
+
+    def __eq__(self, other):
+        return other.name == self.name
+
+    def __repr__(self):
+        return '<%s with value "%s">' % (self.name, self.value)
 
 
 class Constant(Node):

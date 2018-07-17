@@ -20,4 +20,4 @@ class Graph:
             if isinstance(node, Variable) and node in self._inputs:
                 node.value = values_dict[node]
 
-        return [output.value for output in self.outputs]
+        return [output.value for output in self._outputs]

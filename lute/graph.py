@@ -11,7 +11,7 @@ class Graph:
         self._inputs = inputs
         self._outputs = outputs
 
-    def run(self, values_dict: Dict[Variable, Any]):
+    def run(self, values_dict: Dict[Variable, Any] = {}):
         """
         Run the values
         """

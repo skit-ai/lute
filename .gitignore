@@ -92,3 +92,4 @@ ENV/
 # IDEs
 .idea
 .code
+/pyproject.lock

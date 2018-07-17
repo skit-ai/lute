@@ -3,6 +3,9 @@ from typing import Any
 
 
 class Node(ABC):
+    """
+    Base class for all nodes
+    """
     _count = -1
 
     @abstractmethod
@@ -11,14 +14,25 @@ class Node(ABC):
         self._name = None
 
     @property
-    def name(self):
+    def name(self) -> str:
+        """
+        :return: unique name for the node
+        """
         return self._name
 
     @property
     def value(self, *args, **kwargs):
+        """
+        :param args:
+        :param kwargs:
+        :return: evaluated output value of the node
+        """
         return self._output_val
 
     def clear(self):
+        """
+        clears the cached input of the node
+        """
         self._output_val = None
 
     @abstractmethod
@@ -36,6 +50,10 @@ class Node(ABC):
 
 
 class Constant(Node):
+    """
+    Node with constant value. Will always cache the value, even after
+    clear() is called
+    """
 
     def __init__(self, value: Any):
         super().__init__()

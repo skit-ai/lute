@@ -13,3 +13,7 @@ pydash = "^4.6"
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"
 Cython = "^0.28.4"
+
+[[tool.poetry.source]]
+name = "cheeseshop"
+url = "https://cheeseshop.vernacular.ai"

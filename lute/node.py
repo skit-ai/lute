@@ -13,6 +13,11 @@ class Node(ABC):
         self._output_val = None
         self._name = None
 
+    @classmethod
+    def __gen_name__(cls):
+        cls._count += 1
+        return "%s_%s" % (cls.__name__, cls._count)
+
     @property
     def name(self) -> str:
         """
@@ -57,10 +62,8 @@ class Constant(Node):
 
     def __init__(self, value: Any):
         super().__init__()
-
-        Constant._count += 1
-        self._name = "%s_%s" % (__class__.__name__, Constant._count)
         self._value = value
+        self._name = Constant.__gen_name__()
 
     @property
     def value(self):
@@ -75,9 +78,7 @@ class Variable(Node):
 
     def __init__(self):
         super().__init__()
-
-        Variable._count += 1
-        self._name = "%s_%s" % (__class__.__name__, Variable._count)
+        self._name = Variable.__gen_name__()
 
     @Node.value.setter
     def value(self, val):

@@ -1,15 +1,18 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 from lute.node import Node, Variable
 
+GraphInput = Union[List[Node], Node]
+GraphOutput = Union[List[Node], Node]
 
 class Graph:
     """
-    Class for a runnable graph
+    A DAG with some input and output nodes
     """
 
-    def __init__(self, inputs: List[Node], outputs: List[Node]):
-        self.inputs = inputs
-        self.outputs = outputs
+    def __init__(self, input: GraphInput, output: GraphOutput):
+        self.inputs = input if type(input) == list else [input]
+        self.outputs = output if type(output) == list else [output]
+
 
     def run(self, values_dict: Dict[Variable, Any] = {}):
         """

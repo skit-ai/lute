@@ -9,13 +9,21 @@ from lute.graph.graph import Graph
 def make_nx_graph(g: Graph) -> nx.DiGraph:
     dg = nx.DiGraph()
 
-    for n in g.inputs + g.outputs:
-        dg.add_node(n)
+    seen = []
+    edges = []
+    todo = g.inputs + g.outputs
 
-    for n in g.outputs:
-        for in_n in n.predecessors:
-            if in_n not in dg.nodes:
-                dg.add_node(in_n)
-            dg.add_edge(in_n, n)
+    while len(todo) > 0:
+        node = todo.pop()
+        dg.add_node(node)
+        seen.append(node)
+        succ = [node.successors if n not in seen]
+        edges += [(node, s) for s in succ]
+        pred = [node.predecessors if n not in seen]
+        edges += [(p, node) for p in pred]
+        todo += (succ + pred)
+
+    for u, v in edges:
+        dg.add_edge(u, v)
 
     return dg

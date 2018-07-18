@@ -2,7 +2,7 @@
 Graph optimization utilities
 """
 
-from lute.graph.graph import Graph
+from lute.graph.base import Graph
 from lute.graph.utils import walk_node
 from lute.node import Node
 from pydash import py_

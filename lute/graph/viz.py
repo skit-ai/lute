@@ -3,7 +3,7 @@ Visualization for graph
 """
 
 import networkx as nx
-from lute.graph.graph import Graph
+from lute.graph.base import Graph
 
 
 def make_nx_graph(g: Graph) -> nx.DiGraph:

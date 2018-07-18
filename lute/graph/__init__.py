@@ -1,1 +1,1 @@
-from lute.graph.graph import Graph
+from lute.graph.base import Graph

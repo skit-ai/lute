@@ -11,6 +11,7 @@ from pydash import py_
 def prune(g: Graph) -> Graph:
     """
     Clear inputs which are not needed. Remove dangling leaf nodes.
+    Mutates the involved nodes when removing danglers.
     """
 
     required_inputs = [i for i in g.inputs if i in g._backward_nodes()]

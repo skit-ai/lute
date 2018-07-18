@@ -12,16 +12,13 @@ class Node(ABC):
     def __init__(self):
         self._output_val = None
         self._name = None
-        self._inputs = []
+        self.predecessors = []
+        self.successors = []
 
     @classmethod
     def __gen_name__(cls):
         cls._count += 1
         return "%s_%s" % (cls.__name__, cls._count)
-
-    @property
-    def predecessors(self) -> List:
-        return self._inputs
 
     @property
     def name(self) -> str:

@@ -8,8 +8,8 @@ class Graph:
     """
 
     def __init__(self, inputs: List[Node], outputs: List[Node]):
-        self._inputs = inputs
-        self._outputs = outputs
+        self.inputs = inputs
+        self.outputs = outputs
 
     def run(self, values_dict: Dict[Variable, Any] = {}):
         """
@@ -17,7 +17,7 @@ class Graph:
         """
 
         for node in values_dict:
-            if isinstance(node, Variable) and node in self._inputs:
+            if isinstance(node, Variable) and node in self.inputs:
                 node.value = values_dict[node]
 
-        return [output.value for output in self._outputs]
+        return [output.value for output in self.outputs]

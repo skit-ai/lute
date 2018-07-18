@@ -75,7 +75,10 @@ class Node(ABC):
         return hash(self.name)
 
     def __repr__(self):
-        return '<%s with value "%s">' % (self.name, self.value)
+        if self.evaluated:
+            return '<%s with value "%s">' % (self.name, self.value)
+        else:
+            return '<%s and unevaluated>' % self.name
 
 
 class Constant(Node):

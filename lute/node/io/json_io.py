@@ -22,7 +22,7 @@ class JSONWrite(IOWrite):
         super().__init__(file_path)
         self._name = JSONWrite.__gen_name__()
 
-    def write_file(self, filename: str, data, encoding='utf-8', *args, **kwargs):
+    def write_file(self, filename: str, data: Dict, encoding='utf-8', *args, **kwargs):
         if ".json" not in filename:
             filename = '%s.json' % filename
 

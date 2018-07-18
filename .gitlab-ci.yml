@@ -10,7 +10,7 @@ cache:
 before_script:
   - python -V               # Print out python version for debugging
   - pip install tox
-  - curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+  - pip install poetry --index-url "https://cheeseshop.vernacular.ai/
 
 test:
   script:

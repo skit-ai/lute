@@ -106,7 +106,7 @@ class Variable(Node):
         self._name = Variable.__gen_name__()
 
     def eval(self):
-        ...
+        pass
 
     def __call__(self, other: Node):
         raise Exception("uncallable node")

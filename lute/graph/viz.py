@@ -17,9 +17,9 @@ def make_nx_graph(g: Graph) -> nx.DiGraph:
         node = todo.pop()
         dg.add_node(node)
         seen.append(node)
-        succ = [node.successors if n not in seen]
+        succ = [n for n in node.successors if n not in seen]
         edges += [(node, s) for s in succ]
-        pred = [node.predecessors if n not in seen]
+        pred = [n for n in node.predecessors if n not in seen]
         edges += [(p, node) for p in pred]
         todo += (succ + pred)
 

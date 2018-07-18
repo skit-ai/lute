@@ -10,8 +10,9 @@ class Node(ABC):
 
     @abstractmethod
     def __init__(self):
-        self._output_val = None
         self._name = None
+        self._output_val = None
+        self.evaluated = False
         self.predecessors = []
         self.successors = []
 
@@ -34,12 +35,28 @@ class Node(ABC):
         :param kwargs:
         :return: evaluated output value of the node
         """
+        if not self.evaluated:
+            self.eval()
+            self.evaluated = True
+
         return self._output_val
+
+    @abstractmethod
+    def eval(self):
+        """
+        Perform actual evaluation steps for the node
+        """
+
+        ...
 
     def clear(self):
         """
         clears the cached input of the node
         """
+
+        self.evaluated = False
+
+        # Free some memory too
         self._output_val = None
 
     @abstractmethod
@@ -70,10 +87,8 @@ class Constant(Node):
         self._value = value
         self._name = Constant.__gen_name__()
 
-    @property
-    def value(self):
+    def eval(self):
         self._output_val = self._value
-        return self._output_val
 
     def serialize(self):
         pass
@@ -84,6 +99,9 @@ class Variable(Node):
     def __init__(self):
         super().__init__()
         self._name = Variable.__gen_name__()
+
+    def eval(self):
+        pass
 
     @Node.value.setter
     def value(self, val):

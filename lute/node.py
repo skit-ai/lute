@@ -55,6 +55,9 @@ class Node(ABC):
     def __eq__(self, other):
         return other.name == self.name
 
+    def __hash__(self):
+        return hash(self.name)
+
     def __repr__(self):
         return '<%s with value "%s">' % (self.name, self.value)
 

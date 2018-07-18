@@ -11,12 +11,13 @@ class Tokenizer(Node):
 
     def __call__(self, other: Node):
         super().__call__(other)
-        if isinstance(other.value, str):
-            self._text_node = other
-        else:
-            raise Exception("Type Mismatch: Expected str got %s" % type(other.value))
+        self._text_node = other
 
         return self
 
     def eval(self):
-        return tokenize(self._text_node.value, self._lang)
+        _val = self._text_node.value
+        if isinstance(_val, str):
+            return tokenize(_val, self._lang)
+        else:
+            raise Exception("Type Mismatch: Expected str got %s" % type(_val))

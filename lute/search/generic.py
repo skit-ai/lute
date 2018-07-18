@@ -43,6 +43,6 @@ class ExpansionSearch(Node):
         NOTE: This assume untokenized string as of now
         """
 
-        self._output_val = [
+        return [
             term for term in self.terms if self._term_present(term)
         ]

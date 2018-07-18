@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC
-from typing import Any, List
+from typing import Any
 
 
 class Node(ABC):
@@ -36,7 +36,7 @@ class Node(ABC):
         :return: evaluated output value of the node
         """
         if not self.evaluated:
-            self.eval()
+            self._output_val = self.eval()
             self.evaluated = True
 
         return self._output_val
@@ -45,6 +45,7 @@ class Node(ABC):
     def eval(self):
         """
         Perform actual evaluation steps for the node
+        and return the output
         """
 
         ...
@@ -89,7 +90,7 @@ class Constant(Node):
         self._name = Constant.__gen_name__()
 
     def eval(self):
-        self._output_val = self._value
+        return self._value
 
     def __call__(self, other: Node):
         raise Exception("uncallable node")

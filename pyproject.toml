@@ -9,6 +9,7 @@ build = "cyext.py"
 python = "^3.5"
 attr = "^0.3.1"
 pydash = "^4.6"
+networkx = "^2.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"

@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "lute"
 version = "0.1.0"
-description = "Next iteration of our NLU module"
+description = "Framework for writing NLU pipelines"
 authors = []
 build = "cyext.py"
 

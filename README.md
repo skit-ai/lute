@@ -1,3 +1,3 @@
 # lute
 
-Next iteration of our NLU module.
+Framework for writing NLU pipelines.

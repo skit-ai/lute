@@ -59,10 +59,6 @@ class Node(ABC):
         # Free some memory too
         self._output_val = None
 
-    @abstractmethod
-    def serialize(self):
-        pass
-
     def __call__(self, other: 'Node'):
         other.successors.append(self)
         self.predecessors.append(other)
@@ -98,9 +94,6 @@ class Constant(Node):
     def __call__(self, other: Node):
         raise Exception("uncallable node")
 
-    def serialize(self):
-        pass
-
 
 class Variable(Node):
 
@@ -117,6 +110,3 @@ class Variable(Node):
     @Node.value.setter
     def value(self, val):
         self._output_val = val
-
-    def serialize(self):
-        pass

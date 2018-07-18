@@ -20,6 +20,3 @@ class Tokenizer(Node):
 
     def eval(self):
         return tokenize(self._text_node.value, self._lang)
-
-    def serialize(self):
-        pass

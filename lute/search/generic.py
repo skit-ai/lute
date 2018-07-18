@@ -46,6 +46,3 @@ class ExpansionSearch(Node):
         self._output_val = [
             term for term in self.terms if self._term_present(term)
         ]
-
-    def serialize(self):
-        pass

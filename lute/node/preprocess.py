@@ -1,5 +1,7 @@
-from lute.node import Node
 from yamraz.tokenizer import tokenize
+
+from lute.node import Node
+from lute.exceptions import TypeMismatchException
 
 
 class Tokenizer(Node):
@@ -20,4 +22,4 @@ class Tokenizer(Node):
         if isinstance(_val, str):
             return tokenize(_val, self._lang)
         else:
-            raise Exception("Type Mismatch: Expected str got %s" % type(_val))
+            raise TypeMismatchException(str, type(_val))

@@ -1,6 +1,6 @@
 from typing import List, Dict, Any, Union
 from lute.node import Node, Variable
-from lute.graph.utils import walk_node
+from lute.node.utils import walk_node
 from pydash import py_
 
 GraphInput = Union[List[Node], Node]

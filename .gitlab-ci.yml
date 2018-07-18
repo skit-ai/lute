@@ -10,7 +10,7 @@ cache:
 before_script:
   - python -V               # Print out python version for debugging
   - pip install tox
-  - pip install poetry --index-url "https://cheeseshop.vernacular.ai/"
+  - pip install poetry==99.0.0 --extra-index-url "https://cheeseshop.vernacular.ai/"
 
 test:
   script:

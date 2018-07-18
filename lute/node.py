@@ -63,6 +63,11 @@ class Node(ABC):
     def serialize(self):
         pass
 
+    def __call__(self, other: 'Node'):
+        other.successors.append(self)
+        self.predecessors.append(other)
+        return self
+
     def __str__(self):
         return self.name
 
@@ -90,6 +95,9 @@ class Constant(Node):
     def eval(self):
         self._output_val = self._value
 
+    def __call__(self, other: Node):
+        raise Exception("uncallable node")
+
     def serialize(self):
         pass
 
@@ -101,7 +109,10 @@ class Variable(Node):
         self._name = Variable.__gen_name__()
 
     def eval(self):
-        pass
+        ...
+
+    def __call__(self, other: Node):
+        raise Exception("uncallable node")
 
     @Node.value.setter
     def value(self, val):

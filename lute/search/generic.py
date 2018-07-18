@@ -2,8 +2,9 @@
 Generic search handler
 """
 
-from lute.node import Node
 from typing import Dict, List
+
+from lute.node import Node
 
 
 class ExpansionSearch(Node):
@@ -11,7 +12,7 @@ class ExpansionSearch(Node):
     Class for expansion based search
     """
 
-    def __init__(self, terms: List[str] , exp: Dict):
+    def __init__(self, terms: List[str], exp: Dict):
         super().__init__()
         self._name = ExpansionSearch.__gen_name__()
         self.terms = terms
@@ -28,12 +29,9 @@ class ExpansionSearch(Node):
                 raise KeyError("Term {} not found in expansion dict".format(term))
 
     def __call__(self, other: Node):
+        super().__call__(other)
         self._text_node = other
 
-        # TODO: Should do this succ, pred registering in some common place
-        # maybe in a CallableNode?
-        other.successors.append(self)
-        self.predecessors.append(other)
         return self
 
     def _term_present(self, term: str) -> bool:

@@ -27,7 +27,7 @@ class ExpansionSearch(Node):
                 raise KeyError("Term {} not found in expansion dict".format(term))
 
     def __call__(self, other: Node):
-        super().__call__(other)
+        self._register_predecessors([other])
         self._text_node = other
 
         return self

@@ -70,10 +70,11 @@ class Node(metaclass=NodeMeta):
         # Free some memory too
         self._output_val = None
 
-    def __call__(self, other: 'Node'):
-        other.successors.append(self)
-        self.predecessors.append(other)
-        return self
+    def _register_predecessors(self, predecessors):
+        self.predecessors = predecessors
+        for pred in predecessors:
+            if self not in pred.successors:
+                pred.successors.append(self)
 
     def __str__(self):
         return self.name
@@ -135,7 +136,7 @@ class Identity(Node):
         return self._source_node.value
 
     def __call__(self, other: Node):
-        super().__call__(other)
+        self._register_predecessors([other])
         self._source_node = other
 
         return self

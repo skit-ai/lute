@@ -10,7 +10,7 @@ class Tokenizer(Node):
         self._lang = language
 
     def __call__(self, other: Node):
-        super().__call__(other)
+        self._register_predecessors([other])
         self._text_node = other
 
         return self

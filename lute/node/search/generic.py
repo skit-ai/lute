@@ -2,6 +2,7 @@
 Generic search handler
 """
 
+import re
 from typing import Dict, List
 
 from lute.node import Node
@@ -16,6 +17,16 @@ class ExpansionSearch(Node):
         self.terms = terms
         self.exp = exp
         self._validate_expansions()
+        self._prepare_matcher()
+
+    def _prepare_matcher(self):
+        """
+        Precompile regex for the relevant expansions
+        """
+
+        self.re_patterns = {}
+        for term in self.terms:
+            self.re_patterns[term] = re.compile(r"\b" + r"\b|\b".join(self.exp[term]) + r"\b", re.I)
 
     def _validate_expansions(self):
         """
@@ -33,12 +44,12 @@ class ExpansionSearch(Node):
         return self
 
     def _term_present(self, term: str) -> bool:
-        return any([form in self._text_node.value for form in self.exp[term]])
+        return self.re_patterns[term].search(self._text_node.value) is not None
 
     def eval(self):
         """
-        Search for terms based on expansion
-        NOTE: This assume untokenized string as of now
+        Search for terms based on expansions
+        NOTE: This assume untokenized strings
         """
 
         return [

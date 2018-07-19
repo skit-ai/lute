@@ -1,4 +1,4 @@
-from abc import abstractmethod, ABCMeta
+from abc import ABCMeta, abstractmethod
 from typing import Any
 
 
@@ -8,9 +8,9 @@ class NodeMeta(ABCMeta):
 
         if cls.__name__ != "Node":
             original_init = cls.__init__
-            def __init__(self, *args, **kwargs):
-                super(cls, self).__init__()
-                self._name = cls.__gen_name__()
+            def __init__(self, *args, name=None, **kwargs):
+                super(cls, self).__init__(name=name)
+                self._id = cls.__gen_id__()
                 original_init(self, *args, **kwargs)
             cls.__init__ = __init__
 
@@ -24,24 +24,18 @@ class Node(metaclass=NodeMeta):
     _count = -1
 
     @abstractmethod
-    def __init__(self):
-        self._name = None
+    def __init__(self, name=None):
+        self.name = name
+        self._id = None
         self._output_val = None
         self.evaluated = False
         self.predecessors = []
         self.successors = []
 
     @classmethod
-    def __gen_name__(cls):
+    def __gen_id__(cls):
         cls._count += 1
         return "%s_%s" % (cls.__name__, cls._count)
-
-    @property
-    def name(self) -> str:
-        """
-        :return: unique name for the node
-        """
-        return self._name
 
     @property
     def value(self):
@@ -77,19 +71,22 @@ class Node(metaclass=NodeMeta):
                 pred.successors.append(self)
 
     def __str__(self):
-        return self.name
+        return self._id
 
     def __eq__(self, other):
-        return other.name == self.name
+        return other._id == self._id
 
     def __hash__(self):
-        return hash(self.name)
+        return hash(self._id)
 
     def __repr__(self):
-        if self.evaluated:
-            return '<%s with value "%s">' % (self.name, self.value)
-        else:
-            return '<%s and unevaluated>' % self.name
+        name_str = self._id
+        if self.name is not None:
+            name_str = "{}-({})".format(self.name, name_str)
+
+        value_str = repr(self.value) if self.evaluated else "unevaluated"
+
+        return "<{}: {}>".format(name_str, value_str)
 
 
 class Constant(Node):

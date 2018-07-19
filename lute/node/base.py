@@ -121,3 +121,21 @@ class Variable(Node):
     @Node.value.setter
     def value(self, val):
         self._output_val = val
+
+
+class Identity(Node):
+    """
+    Passes on the value of input
+    """
+
+    def __init__(self):
+        pass
+
+    def eval(self):
+        return self._source_node.value
+
+    def __call__(self, other: Node):
+        super().__call__(other)
+        self._source_node = other
+
+        return self

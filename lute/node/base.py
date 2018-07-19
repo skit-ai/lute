@@ -113,7 +113,7 @@ class Variable(Node):
         pass
 
     def eval(self):
-        pass
+        return self._output_val
 
     def __call__(self, other: Node):
         raise Exception("uncallable node")

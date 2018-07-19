@@ -45,4 +45,6 @@ class Graph:
             if isinstance(node, Variable) and node in self.inputs:
                 node.value = values_dict[node]
 
-        return [output.value for output in self.outputs]
+        results = [output.value for output in self.outputs]
+
+        return results[0] if len(results) == 1 else results

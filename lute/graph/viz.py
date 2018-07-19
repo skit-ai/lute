@@ -4,13 +4,15 @@ Visualization for graph
 
 import networkx as nx
 from lute.graph.base import Graph
+from lute.node.base import Node
+from typing import List, Tuple
 
 
 def make_nx_graph(g: Graph) -> nx.DiGraph:
     dg = nx.DiGraph()
 
     seen = []
-    edges = []
+    edges: List[Tuple[Node, Node]] = []
     todo = g.inputs + g.outputs
 
     while len(todo) > 0:

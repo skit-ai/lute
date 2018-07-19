@@ -13,8 +13,8 @@ class Graph:
     """
 
     def __init__(self, input: GraphInput, output: GraphOutput):
-        self.inputs = input if type(input) == list else [input]
-        self.outputs = output if type(output) == list else [output]
+        self.inputs: List[Node] = input if type(input) == list else [input]
+        self.outputs: List[Node] = output if type(output) == list else [output]
         self._nodes = self._all_nodes()
 
     def _all_nodes(self):

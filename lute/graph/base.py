@@ -26,14 +26,20 @@ class Graph:
     def _backward_nodes(self):
         return py_.uniq(py_.flatten([walk_node(n, backward=True) for n in self.outputs]))
 
+    def clear(self):
+        """
+        Clear all involved nodes
+        """
+
+        for node in self._nodes:
+            node.clear()
+
     def run(self, values_dict: Dict[Variable, Any] = {}):
         """
         Run the values
         """
 
-        # Clear values for all involved nodes
-        for node in self._nodes:
-            node.clear()
+        self.clear()
 
         for node in values_dict:
             if isinstance(node, Variable) and node in self.inputs:

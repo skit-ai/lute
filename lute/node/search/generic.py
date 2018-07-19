@@ -55,3 +55,15 @@ class ExpansionSearch(Node):
         return [
             term for term in self.terms if self._term_present(term)
         ]
+
+
+class ListSearch(ExpansionSearch):
+    """
+    Class for searching based on a list of words/phrases
+    """
+
+    def __init__(self, terms: List[str]):
+        super().__init__(terms, self._generate_expansions(terms))
+
+    def _generate_expansions(self, terms):
+        return {k: [k] for k in terms}

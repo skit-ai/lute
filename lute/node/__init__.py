@@ -1,1 +1,1 @@
-from .base import Node, Constant, Variable
+from .base import Node, Constant, Variable, Identity

@@ -17,8 +17,8 @@ def prune(g: Graph) -> Graph:
     required_inputs = [i for i in g.inputs if i in g._backward_nodes()]
 
     for node in g._forward_nodes():
-        if node not in outputs and len(node.successors) == 0:
+        if node not in g.outputs and len(node.successors) == 0:
             for pnode in node.predecessors:
                 pnode.successors.remove(node)
 
-    return Graph(required_inputs, outputs)
+    return Graph(required_inputs, g.outputs)

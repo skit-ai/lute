@@ -13,8 +13,6 @@ class ExpansionSearch(Node):
     """
 
     def __init__(self, terms: List[str], exp: Dict):
-        super().__init__()
-        self._name = ExpansionSearch.__gen_name__()
         self.terms = terms
         self.exp = exp
         self._validate_expansions()

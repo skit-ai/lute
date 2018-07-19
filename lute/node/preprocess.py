@@ -7,8 +7,6 @@ from lute.exceptions import TypeMismatchException
 class Tokenizer(Node):
 
     def __init__(self, language):
-        super().__init__()
-        self._name = Tokenizer.__gen_name__()
         self._lang = language
 
     def __call__(self, other: Node):

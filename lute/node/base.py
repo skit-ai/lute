@@ -1,8 +1,23 @@
-from abc import abstractmethod, ABC
+from abc import abstractmethod, ABCMeta
 from typing import Any
 
 
-class Node(ABC):
+class NodeMeta(ABCMeta):
+    def __new__(meta_cls, *args, **kwargs):
+        cls = super().__new__(meta_cls, *args, **kwargs)
+
+        if cls.__name__ != "Node":
+            original_init = cls.__init__
+            def __init__(self, *args, **kwargs):
+                super(cls, self).__init__()
+                self._name = cls.__gen_name__()
+                original_init(self, *args, **kwargs)
+            cls.__init__ = __init__
+
+        return cls
+
+
+class Node(metaclass=NodeMeta):
     """
     Base class for all nodes
     """
@@ -29,12 +44,7 @@ class Node(ABC):
         return self._name
 
     @property
-    def value(self, *args, **kwargs):
-        """
-        :param args:
-        :param kwargs:
-        :return: evaluated output value of the node
-        """
+    def value(self):
         if not self.evaluated:
             self._output_val = self.eval()
             self.evaluated = True
@@ -88,9 +98,7 @@ class Constant(Node):
     """
 
     def __init__(self, value: Any):
-        super().__init__()
         self._value = value
-        self._name = Constant.__gen_name__()
 
     def eval(self):
         return self._value
@@ -102,8 +110,7 @@ class Constant(Node):
 class Variable(Node):
 
     def __init__(self):
-        super().__init__()
-        self._name = Variable.__gen_name__()
+        pass
 
     def eval(self):
         pass

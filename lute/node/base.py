@@ -13,8 +13,9 @@ class NodeMeta(ABCMeta):
                 if base_cls in [c.__name__ for c in cls.__bases__]:
                     # Only auto call super for the direct children of base_cls
                     super(cls, self).__init__(*args, **kwargs)
-                self._id = cls.__gen_id__()
                 original_init(self, *args, **kwargs)
+                self._id = cls.__gen_id__()
+
             cls.__init__ = __init__
 
         return cls

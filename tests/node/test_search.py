@@ -36,18 +36,69 @@ def test_list():
     assert g.run({ x: "What is a blue moon?" }) == ["Blue moon"]
 
 
-def test_constraints():
-    constraints = [["moon", "moon"], [None, "kek"], [None, None], ["lol", "lel"]]
+def test_constraints_partial():
+    constraints = [
+        { "first": "moon", "second": "moon" },
+        { "second": "kek" },
+        { "first": "lol", "second": "kek" }
+    ]
 
     x1 = Variable()
     x2 = Variable()
-    c = ConstraintSearch(constraints)([x1, x2])
+    c = ConstraintSearch(constraints, partial=True)({ "first": x1, "second": x2 })
 
     g = Graph([x1, x2], c)
 
     assert g.run({ x1: [], x2: [] }) == []
-    assert g.run({ x1: ["moon"], x2: [] }) == []
-    assert g.run({ x1: ["moon"], x2: ["moon", "kek"] }) == [["moon", "moon"], [None, "kek"]]
-    assert g.run({ x1: ["moon"], x2: ["kek"] }) == [[None, "kek"]]
-    assert g.run({ x1: ["lol"], x2: ["kek"] }) == [[None, "kek"]]
-    assert g.run({ x1: ["lol"], x2: ["lel"] }) == [["lol", "lel"]]
+    assert g.run({ x1: [], x2: ["kek"] }) == [
+        ({ "second": "kek" }, []),
+        ({ "first": "lol", "second": "kek" }, ["first"])
+    ]
+    assert g.run({ x1: ["moon"], x2: ["moon", "kek"] }) == [
+        ({ "first": "moon", "second": "moon" }, []),
+        ({ "second": "kek" }, []),
+        ({ "first": "lol", "second": "kek" }, ["first"])
+    ]
+    assert g.run({ x1: ["moon"], x2: ["kek"] }) == [
+        ({ "first": "moon", "second": "moon" }, ["second"]),
+        ({ "second": "kek" }, []),
+        ({ "first": "lol", "second": "kek" }, ["first"])
+    ]
+    assert g.run({ x1: ["lol"], x2: ["kek"] }) == [
+        ({ "second": "kek" }, []),
+        ({ "first": "lol", "second": "kek" }, [])
+    ]
+    assert g.run({ x1: ["lol"], x2: ["lel"] }) == [
+        ({ "first": "lol", "second": "kek" }, ["second"])
+    ]
+
+
+def test_constraints_complete():
+    constraints = [
+        { "first": "moon", "second": "moon" },
+        { "second": "kek" },
+        { "first": "lol", "second": "kek" }
+    ]
+
+    x1 = Variable()
+    x2 = Variable()
+    c = ConstraintSearch(constraints, partial=False)({ "first": x1, "second": x2 })
+
+    g = Graph([x1, x2], c)
+
+    assert g.run({ x1: [], x2: [] }) == []
+    assert g.run({ x1: [], x2: ["kek"] }) == [
+        ({ "second": "kek" }, []),
+    ]
+    assert g.run({ x1: ["moon"], x2: ["moon", "kek"] }) == [
+        ({ "first": "moon", "second": "moon" }, []),
+        ({ "second": "kek" }, [])
+    ]
+    assert g.run({ x1: ["moon"], x2: ["kek"] }) == [
+        ({ "second": "kek" }, [])
+    ]
+    assert g.run({ x1: ["lol"], x2: ["kek"] }) == [
+        ({ "second": "kek" }, []),
+        ({ "first": "lol", "second": "kek" }, [])
+    ]
+    assert g.run({ x1: ["lol"], x2: ["lel"] }) == []

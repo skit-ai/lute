@@ -2,47 +2,55 @@
 Constraint finding nodes
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple
 
 from lute.node import Node
+from pydash import py_
+
+Constraint = Dict[str, Any]
 
 
 class ConstraintSearch(Node):
     """
-    Return what constraints are satisfied
+    Return what constraints are satisfied. A constraint is a dict with a str mapping
+    to a value.
     """
 
-    def __init__(self, constraints: List):
-        self.constraints = self._filter_constraints(constraints)
+    def __init__(self, cs: List[Constraint], partial=False):
+        self.constraints = cs
+        self.partial = partial
+        self.keys = self._find_all_keys()
 
-    def _filter_constraints(self, constraints):
-        if any([len(c) != len(constraints[0]) for c in constraints]):
-            raise Exception("Not all constraints are of same length")
+    def _find_all_keys(self) -> List[str]:
+        return py_.uniq(py_.flatten([list(c.keys()) for c in self.constraints]))
 
-        return [
-            constraint for constraint in constraints
-            if any([c_it is not None for c_it in constraint])
-        ]
+    def __call__(self, input_map: Dict[str, Node]):
+        if any([key not in input_map for key in self.keys]):
+            raise KeyError("Not all constraint keys present in input map")
 
-    def __call__(self, others: List[Node]):
-        if len(others) != len(self.constraints[0]):
-            raise Exception("Length mismatch in input nodes and constraints")
-
-        self._register_predecessors(others)
-        self._other_nodes = others
+        self._register_predecessors(list(input_map.values()))
+        self._input_map = input_map
 
         return self
 
-    def _check_constraint(self, constraint) -> bool:
-        for c_it, c_node in zip(constraint, self._other_nodes):
-            if (c_it is not None) and (c_it not in c_node.value):
-                return False
+    def _missing_keys(self, c: Constraint) -> List[str]:
+        missing = []
 
-        return True
+        for key in c:
+            if c[key] is not None:
+                if c[key] not in self._input_map[key].value:
+                    missing.append(key)
+
+        return missing
 
     def eval(self):
         """
-        Return constraints that are fully satisfied
+        Return constraints and missing keys
         """
 
-        return [c for c in self.constraints if self._check_constraint(c)]
+        results = [(c, self._missing_keys(c)) for c in self.constraints]
+
+        if self.partial:
+            return py_.filter(results, lambda it: len(it[1]) < len(it[0]))
+        else:
+            return py_.filter(results, lambda it: len(it[1]) == 0)

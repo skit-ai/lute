@@ -12,6 +12,7 @@ pydash = "^4.6"
 networkx = "^2.1"
 yamraz = "^0.1.1"
 matplotlib = "^2.2"
+Cython = "^0.28.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"

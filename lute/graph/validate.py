@@ -1,0 +1,3 @@
+"""
+Validation functions for graph
+"""

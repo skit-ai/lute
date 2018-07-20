@@ -29,6 +29,7 @@ class Node(metaclass=NodeMeta):
     @abstractmethod
     def __init__(self, *args, **kwargs):
         self.name = kwargs.get("name")
+        self.dynamic = kwargs.get("dynamic") or False
         self._id = None
         self._output_val = None
         self.evaluated = False

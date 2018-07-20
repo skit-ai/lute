@@ -4,9 +4,8 @@ Some utitlies for nodes
 
 from typing import List
 
-from pydash import py_
-
 from lute.node.base import Node
+from pydash import py_
 
 
 def walk_node(node: Node, backward=False) -> List[Node]:
@@ -18,6 +17,6 @@ def walk_node(node: Node, backward=False) -> List[Node]:
     accessible = neighbours.copy()
 
     for node in neighbours:
-        accessible += walk_node(node)
+        accessible += walk_node(node, backward=backward)
 
     return py_.uniq(accessible)

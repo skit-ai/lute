@@ -62,10 +62,16 @@ class Node(metaclass=NodeMeta):
         clears the cached input of the node
         """
 
-        self.evaluated = False
+        # Guarding against cyclic traps
+        if self.evaluated == True:
+            self.evaluated = False
 
-        # Free some memory too
-        self._output_val = None
+            # Free some memory too
+            self._output_val = None
+
+            # Free up all successors too
+            for succ in self.successors:
+                succ.clear()
 
     def _register_predecessors(self, predecessors):
         self.predecessors = predecessors

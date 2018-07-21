@@ -2,10 +2,12 @@
 Visualization for graph
 """
 
+from typing import List, Tuple
+
+import matplotlib.pyplot as plt
 import networkx as nx
 from lute.graph.base import Graph
 from lute.node.base import Node
-from typing import List, Tuple
 
 
 def make_nx_graph(g: Graph) -> nx.DiGraph:
@@ -29,3 +31,10 @@ def make_nx_graph(g: Graph) -> nx.DiGraph:
         dg.add_edge(u, v)
 
     return dg
+
+
+def plot_graph(g: Graph, **kwargs):
+    nxg = make_nx_graph(g)
+    plt.figure(**kwargs)
+    nx.draw(nxg, with_labels=True)
+    plt.show()

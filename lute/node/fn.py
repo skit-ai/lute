@@ -48,11 +48,17 @@ def fn_node(fn) -> Node:
         pass
 
     def __call__(self, *args):
+        self._register_predecessors(args)
         self._input = args
         return self
 
-    return NodeMeta(name, (Node,), {
+    Cls = NodeMeta(name, (Node,), {
         "__init__": __init__,
         "__call__": __call__,
         "eval": lambda self: namespace[name](*self._input)
     })
+
+    def _wrapper(*args):
+        return Cls(*args)
+
+    return _wrapper

@@ -48,7 +48,7 @@ def fn_node(fn) -> Node:
         pass
 
     def __call__(self, *args):
-        self._register_predecessors(args)
+        self._register_predecessors(list(args))
         self._input = args
         return self
 

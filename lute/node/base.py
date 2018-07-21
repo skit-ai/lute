@@ -2,6 +2,29 @@ from abc import ABCMeta, abstractmethod
 from typing import Any
 
 
+class NodeTuple:
+    """
+    A collection type for working with parallel piping
+    """
+
+    def __init__(self, nodes=[]):
+        self.nodes = nodes
+
+    def __getitem__(self, key):
+        return self.nodes[key]
+
+    def __mul__(self, other_node):
+        self.nodes.append(other_node)
+
+    def __rshift__(self, other):
+        if isinstance(other, Node):
+            return other(*self.nodes)
+        elif isinstance(other, NodeTuple):
+            return NodeTuple([o(*self.nodes) for o in other])
+        else:
+            raise TypeError("Unknown right hand side encountered while piping")
+
+
 class NodeMeta(ABCMeta):
     def __new__(meta_cls, *args, **kwargs):
         cls = super().__new__(meta_cls, *args, **kwargs)
@@ -90,12 +113,23 @@ class Node(metaclass=NodeMeta):
     def __hash__(self):
         return hash(self._id)
 
+    def __mul__(self, other):
+        if isinstance(other, Node):
+            return NodeTuple([self, other])
+        else:
+            raise TypeError("Unknown right hand side while making NodeTuple")
+
     def __rshift__(self, other):
         """
         Overriding >> for piping
         """
 
-        return other(self)
+        if isinstance(other, Node):
+            return other(self)
+        elif isinstance(other, NodeTuple):
+            return NodeTuple([o(self) for o in other])
+        else:
+            raise TypeError("Unknown right hand side encountered while piping")
 
     def __repr__(self):
         name_str = self._id

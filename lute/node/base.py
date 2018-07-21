@@ -90,6 +90,13 @@ class Node(metaclass=NodeMeta):
     def __hash__(self):
         return hash(self._id)
 
+    def __rshift__(self, other):
+        """
+        Overriding >> for piping
+        """
+
+        return other(self)
+
     def __repr__(self):
         name_str = self._id
         if self.name is not None:

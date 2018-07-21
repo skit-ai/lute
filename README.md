@@ -196,6 +196,6 @@ Chaining `NodeTuple` does something reasonable:
 num = Constant(10)
 num >> \
 Identity() * Identity() >> \ # We have (10, 10) here
-BinMult() * BinAdd) >> \     # The last tuple goes in both ops, giving (100, 20)
+BinMult() * BinAdd() >> \     # The last tuple goes in both ops, giving (100, 20)
 BinAdd()                     # Finally we get 120
 ```

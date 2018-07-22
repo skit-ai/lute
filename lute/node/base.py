@@ -15,6 +15,7 @@ class NodeTuple:
 
     def __mul__(self, other_node):
         self.nodes.append(other_node)
+        return self
 
     def __rshift__(self, other):
         if isinstance(other, Node):

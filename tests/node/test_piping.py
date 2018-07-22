@@ -37,6 +37,11 @@ def test_quad():
     assert res.value == 88
 
 
+def test_one_three():
+    a, b, c = Constant(22) >> Identity() * Identity() * Identity()
+    assert a.value == b.value == c.value == 22
+
+
 def test_unpack():
     c = Constant(22)
     a, b = c >> Identity() * fn_node(square)()

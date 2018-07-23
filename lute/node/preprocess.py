@@ -38,6 +38,6 @@ class Normalizer(Node):
     def eval(self):
         _val = self._text_node.value
         if isinstance(_val, str):
-            return Text(_val, self._lang, normalize=True).text()
+            return Text(_val, self._lang, normalize=True).text
         else:
             raise TypeMismatchException(str, type(_val))

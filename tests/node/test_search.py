@@ -20,6 +20,20 @@ def test_expansion():
     assert g.run({ x: "lol planet mars" }) == []
 
 
+def test_expansion_hi():
+    exp = {
+        "account": ["सैलरी अकाउंट", "सेविंग्स अकाउंट"],
+        "card": ["कार्ड", "कॉर्ड"],
+        "lost": ["खो", "गुम", "गायब", "लुप्त"]
+    }
+
+    x = Variable()
+    g = Graph(x, x >> ExpansionSearch(["account", "card", "lost"], exp, lang="hi"))
+
+    assert g.run({ x: "कार्ड खो गया है" }) == ["card", "lost"]
+    assert g.run({ x: "सैलरी अकाउंट चाहिए" }) == ["account"]
+
+
 def test_list():
     terms = [
         "Blue moon",

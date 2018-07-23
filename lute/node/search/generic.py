@@ -6,6 +6,7 @@ import re
 from typing import Dict, List
 
 from lute.node import Node
+from yamraz.tokenizer import tokenize
 
 
 class ExpansionSearch(Node):
@@ -13,9 +14,10 @@ class ExpansionSearch(Node):
     Class for expansion based search
     """
 
-    def __init__(self, terms: List[str], exp: Dict):
+    def __init__(self, terms: List[str], exp: Dict, lang: str = "en"):
         self.terms = terms
         self.exp = exp
+        self.lang = lang
         self._validate_expansions()
         self._prepare_matcher()
 
@@ -26,7 +28,7 @@ class ExpansionSearch(Node):
 
         self.re_patterns = {}
         for term in self.terms:
-            self.re_patterns[term] = re.compile(r"\b" + r"\b|\b".join(self.exp[term]) + r"\b", re.I)
+            self.re_patterns[term] = re.compile(r"\s" + r"\s|\s".join(self.exp[term]) + r"\s", re.I | re.UNICODE)
 
     def _validate_expansions(self):
         """
@@ -44,13 +46,16 @@ class ExpansionSearch(Node):
         return self
 
     def _term_present(self, term: str) -> bool:
-        return self.re_patterns[term].search(self._text_node.value) is not None
+        return self.re_patterns[term].search(self._text) is not None
 
     def eval(self):
         """
         Search for terms based on expansions
         NOTE: This assume untokenized strings
         """
+
+        # Clean up text
+        self._text = " " + " ".join(tokenize(self._text_node.value, self.lang)) + " "
 
         return [
             term for term in self.terms if self._term_present(term)

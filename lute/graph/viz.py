@@ -14,7 +14,7 @@ def make_nx_graph(g: Graph) -> nx.DiGraph:
     dg = nx.DiGraph()
 
     seen = []
-    edges: List[Tuple[Node, Node]] = []
+    edges = []
     todo = g.inputs + g.outputs
 
     while len(todo) > 0:

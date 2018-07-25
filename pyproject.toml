@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lute"
-version = "0.2.5"
+version = "0.2.6"
 description = "Framework for writing NLU pipelines"
 authors = []
 # Cython build disabled for now

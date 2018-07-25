@@ -36,7 +36,9 @@ class ExpansionSearch(Node):
         """
 
         for term in self.terms:
-            if term not in self.exp:
+            try:
+                self.exp[term]
+            except KeyError:
                 raise KeyError("Term {} not found in expansion dict".format(term))
 
     def __call__(self, other: Node):

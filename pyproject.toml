@@ -3,7 +3,8 @@ name = "lute"
 version = "0.2.2"
 description = "Framework for writing NLU pipelines"
 authors = []
-build = "cyext.py"
+# Cython build disabled for now
+# build = "cyext.py"
 
 [tool.poetry.dependencies]
 python = "^3.5"

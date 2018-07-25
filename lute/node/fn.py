@@ -43,14 +43,23 @@ class ValueTransformer(ast.NodeTransformer):
 
     def visit_Name(self, node):
         if node.id in self._input_ids:
-            return ast.Call(
-                func=ast.Name(id="getattr", ctx=ast.Load()),
-                args=[node, ast.Str("value")],
-                keywords=[]
-            )
+            # If the parent node is not an assign node, replace it with getattr()
+            if(not isinstance(node.parent, ast.Assign)):
+                return ast.Call(
+                    func=ast.Name(id="getattr", ctx=ast.Load()),
+                    args=[node, ast.Str("value")],
+                    keywords=[]
+                )
+
+            # If the parent node is an Assign node, replace it with variable.value with Store() context
+            elif(isinstance(node.parent, ast.Assign)):
+                return ast.Attribute(
+                    value=ast.Name(id=node.id, ctx=ast.Load()),
+                    attr='value',
+                    ctx=ast.Store()
+                )
         else:
             return node
-
 
 def unique_name(root: str) -> str:
     return "{}__{}".format(root, str(uuid4()).replace("-", "_"))
@@ -70,6 +79,12 @@ def fn_node(fn) -> Node:
 
     # Patch function
     tree = ast.parse(inspect.getsource(fn))
+
+    # Create a pointer to the parent node in the tree
+    for node in ast.walk(tree):
+        for child in ast.iter_child_nodes(node):
+            child.parent = node
+
     tree = ValueTransformer(args).visit(tree)
     tree = NameTransformer(name, new_name).visit(tree)
     ast.fix_missing_locations(tree)

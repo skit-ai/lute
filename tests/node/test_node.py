@@ -1,5 +1,6 @@
+from lute.graph import Graph
 from lute.node import Constant, Variable
-
+from lute.node.fn import fn_node
 
 def test_id():
     Constant._count = -1
@@ -16,3 +17,20 @@ def test_id():
 
     v1 = Variable()
     assert v1._id == 'Variable_1'
+
+def what_func(a, b, c):
+    a = b+c
+    return a
+
+def test_func_node():
+    x = Variable()
+    y = Variable()
+    z = Variable()
+    func_node = fn_node(what_func)()(x, y, z)
+    g = Graph([x,y,z], func_node)
+    result = g.run({
+        x : 1,
+        y : 2,
+        z : 3
+    })
+    assert(result == 5)

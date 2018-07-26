@@ -13,7 +13,7 @@ def test_expansion():
     allowed = Constant(["world", "you"])
     g = Graph(x, ((x >> Tokenizer("en")) * allowed) >> NGrams())
 
-    assert g.run({ x: "Hello world how are you" }) == [
+    assert g.run("Hello world how are you") == [
         ("world",),
         ("you",),
         ("Hello", "world"),

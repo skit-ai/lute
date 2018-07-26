@@ -40,7 +40,7 @@ def what_what_func(a, b, c):
 #     z = Variable()
 #     func_node = fn_node(what_what_func)()(x, y, z)
 #     g = Graph([x,y,z], func_node)
-#     a, b, c = g.run({
+#     a, b, c = g.run(values_dict={
 #         x : 1,
 #         y : 2,
 #         z : 3
@@ -70,11 +70,11 @@ def test_conditional_call():
 
     N = fn_node(conditional_func)()
 
-    g = Graph([a, b], N(a, b))
+    out = N(a, b)
 
     # Don't set anything here
     # Since branch for b won't run, updation of b should not throw error
-    assert g.run() == 22
+    assert N.value == 22
 
 def test_func_node_replacement():
     x = Constant(2)
@@ -87,7 +87,7 @@ def test_something():
     y = x >> fn_node(which_func)()
     z = x >> fn_node(which_func)()
     g = Graph(x, [y, z])
-    y_out, z_out = g.run({ x: 10 })
+    y_out, z_out = g.run(10)
     assert y_out == z_out
 
 def test_func_node():
@@ -96,7 +96,7 @@ def test_func_node():
     z = Variable()
     func_node = fn_node(what_func)()(x, y, z)
     g = Graph([x,y,z], func_node)
-    result = g.run({
+    result = g.run(values_dict={
         x : 1,
         y : 2,
         z : 3

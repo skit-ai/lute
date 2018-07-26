@@ -1,4 +1,5 @@
-from typing import List, Dict, Any, Union
+from typing import Any, Dict, List, Union
+
 from lute.node import Node, Variable
 from lute.node.utils import walk_node
 from pydash import py_
@@ -13,8 +14,8 @@ class Graph:
     """
 
     def __init__(self, input: GraphInput, output: GraphOutput):
-        self.inputs: List[Node] = input if type(input) == list else [input]
-        self.outputs: List[Node] = output if type(output) == list else [output]
+        self.inputs = input if type(input) == list else [input]
+        self.outputs = output if type(output) == list else [output]
         self._nodes = self._all_nodes()
 
     def _all_nodes(self):

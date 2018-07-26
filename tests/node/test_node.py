@@ -27,6 +27,33 @@ def which_func(a):
     a = a + 1
     return a
 
+def conditional_func(a, b):
+    if True:
+        a = a + 1
+    else:
+        b = b + 1
+    return 22
+
+def test_conditional_call():
+    """
+    Test if the calls to function is evaluating branches which
+    shouldn't get evaluated.
+    """
+
+    a = Variable()
+    b = Variable()
+
+    # Set values for a only
+    a.value = 22
+
+    N = fn_node(conditional_func)()
+
+    g = Graph([a, b], N(a, b))
+
+    # Don't set anything here
+    # Since branch for b won't run, updation of b should not throw error
+    assert g.run() == 22
+
 def test_func_node_replacement():
     x = Constant(2)
     g = Graph(x, x >> fn_node(which_func)())

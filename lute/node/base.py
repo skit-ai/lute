@@ -40,6 +40,8 @@ class NodeMeta(ABCMeta):
                 original_init(self, *args, **kwargs)
                 self._id = cls.__gen_id__()
 
+            __init__.__wrapped__ = original_init
+
             cls.__init__ = __init__
 
         return cls

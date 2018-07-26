@@ -38,7 +38,8 @@ class ConstraintSearch(Node):
 
         for key in c:
             if c[key] is not None:
-                if c[key] not in self._input_map[key].value:
+                values = [it["value"] for it in self._input_map[key].value]
+                if c[key] not in values:
                     missing.append(key)
 
         return missing

@@ -96,25 +96,30 @@ def test_constraints_partial():
     g = Graph([x1, x2], c)
 
     assert g.run(values_dict={ x1: [], x2: [] }) == []
-    assert g.run(values_dict={ x1: [], x2: ["kek"] }) == [
+    assert g.run(values_dict={ x1: [], x2: [{ "type": "search_type", "value": "kek" }] }) == [
         ({ "second": "kek" }, []),
         ({ "first": "lol", "second": "kek" }, ["first"])
     ]
-    assert g.run(values_dict={ x1: ["moon"], x2: ["moon", "kek"] }) == [
+    assert g.run(values_dict={ x1: [{ "type": "search_type", "value": "moon" }],
+                               x2: [{ "type": "search_type", "value": "moon" },
+                                    { "type": "search_type", "value": "kek" }] }) == [
         ({ "first": "moon", "second": "moon" }, []),
         ({ "second": "kek" }, []),
         ({ "first": "lol", "second": "kek" }, ["first"])
     ]
-    assert g.run(values_dict={ x1: ["moon"], x2: ["kek"] }) == [
+    assert g.run(values_dict={ x1: [{ "type": "search_type", "value": "moon" }],
+                               x2: [{ "type": "search_type", "value": "kek" }] }) == [
         ({ "first": "moon", "second": "moon" }, ["second"]),
         ({ "second": "kek" }, []),
         ({ "first": "lol", "second": "kek" }, ["first"])
     ]
-    assert g.run(values_dict={ x1: ["lol"], x2: ["kek"] }) == [
+    assert g.run(values_dict={ x1: [{ "type": "search_type", "value": "lol" }],
+                               x2: [{ "type": "search_type", "value": "kek" }] }) == [
         ({ "second": "kek" }, []),
         ({ "first": "lol", "second": "kek" }, [])
     ]
-    assert g.run(values_dict={ x1: ["lol"], x2: ["lel"] }) == [
+    assert g.run(values_dict={ x1: [{ "type": "search_type", "value": "lol" }],
+                               x2: [{ "type": "search_type", "value": "lel" }] }) == [
         ({ "first": "lol", "second": "kek" }, ["second"])
     ]
 
@@ -133,18 +138,23 @@ def test_constraints_complete():
     g = Graph([x1, x2], c)
 
     assert g.run(values_dict={ x1: [], x2: [] }) == []
-    assert g.run(values_dict={ x1: [], x2: ["kek"] }) == [
+    assert g.run(values_dict={ x1: [], x2: [{ "type": "search_type", "value": "kek" }] }) == [
         ({ "second": "kek" }, []),
     ]
-    assert g.run(values_dict={ x1: ["moon"], x2: ["moon", "kek"] }) == [
+    assert g.run(values_dict={ x1: [{ "type": "search_type", "value": "moon" }],
+                               x2: [{ "type": "search_type", "value": "moon" },
+                                    { "type": "search_type", "value": "kek" }] }) == [
         ({ "first": "moon", "second": "moon" }, []),
         ({ "second": "kek" }, [])
     ]
-    assert g.run(values_dict={ x1: ["moon"], x2: ["kek"] }) == [
+    assert g.run(values_dict={ x1: [{ "type": "search_type", "value": "moon" }],
+                               x2: [{ "type": "search_type", "value": "kek" }] }) == [
         ({ "second": "kek" }, [])
     ]
-    assert g.run(values_dict={ x1: ["lol"], x2: ["kek"] }) == [
+    assert g.run(values_dict={ x1: [{ "type": "search_type", "value": "lol" }],
+                               x2: [{ "type": "search_type", "value": "kek" }] }) == [
         ({ "second": "kek" }, []),
         ({ "first": "lol", "second": "kek" }, [])
     ]
-    assert g.run(values_dict={ x1: ["lol"], x2: ["lel"] }) == []
+    assert g.run(values_dict={ x1: [{ "type": "search_type", "value": "lol" }],
+                               x2: [{ "type": "search_type", "value": "lel" }] }) == []

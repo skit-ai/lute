@@ -14,9 +14,29 @@ def test_expansion():
     e = ExpansionSearch(["hello", "world"], exp)(x)
     g = Graph(x, e)
 
-    assert g.run({ x: "Hello world" }) == ["hello", "world"]
-    assert g.run({ x: "hola planet earth" }) == ["hello", "world"]
-    assert g.run({ x: "hola planet mars" }) == ["hello"]
+    assert g.run({ x: "Hello world" }) == [{
+        "type": "expansion",
+        "value": "hello",
+        "range": (0, 5)
+    }, {
+        "type": "expansion",
+        "value": "world",
+        "range": (6, 11)
+    }]
+    assert g.run({ x: "hola planet earth" }) == [{
+        "type": "expansion",
+        "value": "hello",
+        "range": (0, 4)
+    }, {
+        "type": "expansion",
+        "value": "world",
+        "range": (5, 17)
+    }]
+    assert g.run({ x: "hola planet mars" }) == [{
+        "type": "expansion",
+        "value": "hello",
+        "range": (0, 4)
+    }]
     assert g.run({ x: "lol planet mars" }) == []
 
 
@@ -30,8 +50,20 @@ def test_expansion_hi():
     x = Variable()
     g = Graph(x, x >> ExpansionSearch(["account", "card", "lost"], exp, lang="hi"))
 
-    assert g.run({ x: "कार्ड खो गया है" }) == ["card", "lost"]
-    assert g.run({ x: "सैलरी अकाउंट चाहिए" }) == ["account"]
+    assert g.run({ x: "कार्ड खो गया है" }) == [{
+        "type": "expansion",
+        "value": "card",
+        "range": (0, 5)
+    }, {
+        "type": "expansion",
+        "value": "lost",
+        "range": (6, 8)
+    }]
+    assert g.run({ x: "सैलरी अकाउंट चाहिए" }) == [{
+        "type": "expansion",
+        "value": "account",
+        "range": (0, 12)
+    }]
 
 
 def test_list():
@@ -46,8 +78,8 @@ def test_list():
     g = Graph(x, e)
 
     assert g.run({ x: "Hello world" }) == []
-    assert g.run({ x: "hola planet venus" }) == ["venus"]
-    assert g.run({ x: "What is a blue moon?" }) == ["Blue moon"]
+    assert g.run({ x: "hola planet venus" }) == [{ "type": "list", "value": "venus", "range": (12, 17) }]
+    assert g.run({ x: "What is a blue moon?" }) == [{ "type": "list", "value": "Blue moon", "range": (10, 19) }]
 
 
 def test_constraints_partial():

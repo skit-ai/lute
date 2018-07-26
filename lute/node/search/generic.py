@@ -6,6 +6,7 @@ import re
 from typing import Dict, List
 
 from lute.node import Node
+from pydash import py_
 from yamraz.tokenizer import tokenize
 
 
@@ -18,6 +19,7 @@ class ExpansionSearch(Node):
         self.terms = terms
         self.exp = exp
         self.lang = lang
+        self.search_type = "expansion"
         self._validate_expansions()
         self._prepare_matcher()
 
@@ -47,8 +49,8 @@ class ExpansionSearch(Node):
 
         return self
 
-    def _term_present(self, term: str) -> bool:
-        return self.re_patterns[term].search(self._text) is not None
+    def _get_matches(self, term: str) -> bool:
+        return list(self.re_patterns[term].finditer(self._text))
 
     def eval(self):
         """
@@ -59,9 +61,16 @@ class ExpansionSearch(Node):
         # Clean up text
         self._text = " " + " ".join(tokenize(self._text_node.value, self.lang)) + " "
 
-        return [
-            term for term in self.terms if self._term_present(term)
-        ]
+        results = []
+        for term in self.terms:
+            matches = self._get_matches(term)
+            results.extend([{
+                "type": self.search_type,
+                "value": term,
+                "range": (m.span()[0], m.span()[1] - 2)
+            } for m in matches])
+
+        return results
 
 
 class ListSearch(ExpansionSearch):
@@ -69,8 +78,9 @@ class ListSearch(ExpansionSearch):
     Class for searching based on a list of words/phrases
     """
 
-    def __init__(self, terms: List[str]):
-        super().__init__(terms, self._generate_expansions(terms))
+    def __init__(self, terms: List[str], lang: str = "en"):
+        super().__init__(terms, self._generate_expansions(terms), lang=lang)
+        self.search_type = "list"
 
     def _generate_expansions(self, terms):
         return {k: [k] for k in terms}

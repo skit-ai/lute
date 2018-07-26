@@ -6,7 +6,7 @@ import ast
 import inspect
 from uuid import uuid4
 
-from lute.node.base import Node, NodeMeta
+from lute.node.base import Constant, Node, NodeMeta
 
 
 class NameTransformer(ast.NodeTransformer):
@@ -96,6 +96,41 @@ class ValueTransformer(ast.NodeTransformer):
 
 def unique_name(root: str) -> str:
     return "{}__{}".format(root, str(uuid4()).replace("-", "_"))
+
+
+def node_fn(*args, **kwargs):
+    """
+    Convert the node to a plain callable function
+    """
+
+    def _get_instance(it, *args, **kwargs):
+        if isinstance(it, Node):
+            return it
+        elif isinstance(it, NodeMeta):
+            return it(*args, **kwargs)
+        else:
+            return None
+
+    def _get_wrapper(inst):
+        def _wrapper(*args, **kwargs):
+            c_args = [Constant(v) for v in args]
+            c_kwargs = { k: Constant(kwargs[k]) for k in kwargs }
+            inst(*c_args, **c_kwargs)
+            return inst.eval()
+
+        return _wrapper
+
+    if len(args) == 1 and len(kwargs) == 0:
+        instance = _get_instance(args[0])
+        if instance is not None:
+            return _get_wrapper(instance)
+
+    # These are args, wrap another function now
+    def _decorator(node: Node):
+        instance = _get_instance(node, *args, **kwargs)
+        return _get_wrapper(instance)
+
+    return _decorator
 
 
 def fn_node(fn) -> Node:

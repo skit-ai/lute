@@ -1,6 +1,7 @@
 from lute.graph import Graph
-from lute.node import Constant, Variable
-from lute.node.fn import fn_node
+from lute.node import Constant, Identity, Variable
+from lute.node.fn import fn_node, node_fn
+from lute.node.preprocess import Tokenizer
 
 
 def test_id():
@@ -102,3 +103,20 @@ def test_func_node():
         z : 3
     })
     assert(result == 5)
+
+def test_node_func():
+    x = Variable()
+
+def test_node_func_interface():
+    s = "hello world"
+    tk_s = ["hello", "world"]
+
+    assert node_fn(Identity)(s) == s
+    assert node_fn(Identity())(s) == s
+    assert node_fn()(Identity())(s) == s
+    assert node_fn()(Identity)(s) == s
+
+    assert node_fn("en")(Tokenizer)(s) == tk_s
+    # The instance arguments takes precedence here
+    assert node_fn("en")(Tokenizer("en"))(s) == tk_s
+    assert node_fn(Tokenizer("en"))(s) == tk_s

@@ -7,6 +7,11 @@ _Make-like_ way to create complex NLU pipelines.
 As of now the development focus is on creating a simple interface (similar to
 keras) which lets us quickly prototype, test and deploy model improvements.
 
+## Installation
+
+Lute is available on cheeseshop. Check our wiki page on cheeseshop for getting
+started.
+
 ## A Quick Example
 
 A model written in lute is a directed acyclic `graph` of `nodes`. A single
@@ -38,7 +43,14 @@ result = ClientNode()([rule_intent, vector_intent])
 # `text` is the input. For output we want the final `result` and also
 # the parsed `entities`.
 g = Graph(text, [result, entities])
-g.run({ text: "Whats up people!" })
+
+# You can either provide a mapping of (Variable) Nodes to values using
+# values_dict keyword argument
+g.run(values_dict={ text: "Whats up people!" })
+
+# You can also just pass the values directly as positional arguments
+# If there are multiple variables, we expect a list-ish input
+g.run("Whats up people!")
 
 # This might return something like
 ["greet", []]
@@ -51,8 +63,13 @@ Suppose you want to write a node that takes a list of text tokens and convert it
 to a dictionary of token frequencies. Here is how this may be implemented:
 
 ```python
-from lute.node import Node
 from collections import Counter
+
+import numpy as np
+import requests
+from lute.graph import Graph
+from lute.node import Node, Variable
+from lute.node.fn import fn_node
 
 
 class Frequency(Node):
@@ -90,7 +107,6 @@ As another example, lets create another node that does an api request using
 token frequency and audio data and tells us sentiment information.
 
 ```python
-import requests
 
 
 class SentimentAPI(Node):
@@ -118,8 +134,6 @@ class SentimentAPI(Node):
 Now we can use the nodes like below:
 
 ```python
-from lute.graph import Graph
-from lute.node import Variable
 
 tokens = Variable()
 audio = Variable()
@@ -128,7 +142,7 @@ frequencies = Frequency()(tokens)
 sentiment = SentimentAPI("https://foo.bar")(frequencies, audio)
 
 g = Graph([tokens, audio], sentiment)
-g.run({ tokens: <tokens>, audio: <audio-data> })
+g.run([<tokens>, <audio-data>])
 ```
 
 ## Sugars
@@ -147,7 +161,6 @@ Suppose a function that takes text and a dictionary of word vectors goes like
 this:
 
 ```python
-import numpy as np
 
 def fun(text, vectors):
     mean_vec = []
@@ -169,6 +182,39 @@ text = Constant("Hello world")
 vector_map = Constant(<some dict>)
 res = Fun()(text, vector_map)
 res.value # gives you the result
+```
+
+### The other way around
+
+In case you want to work with a written node, you might want to just convert it
+in a plain function and get away with the whole lazy thing. `node_fn` does that
+for you. Specifically:
+
+```python
+from lute.node.fn import node_fn
+
+tk_fn = node_fn(Tokenizer("en"))
+
+assert tk_fn("hello world") == ["hello", "world"]
+```
+
+`node_fn` reasonably handles various cases (file an issue if it doesn't) where
+you might be providing just class, instantiated nodes or separated arguments
+like the following:
+
+```python
+s = "hello world"
+tk_s = ["hello", "world"]
+
+assert node_fn(Identity)(s) == s
+assert node_fn(Identity())(s) == s
+assert node_fn()(Identity())(s) == s
+assert node_fn()(Identity)(s) == s
+
+assert node_fn("en")(Tokenizer)(s) == tk_s
+# The instance arguments takes precedence here
+assert node_fn("en")(Tokenizer("en"))(s) == tk_s
+assert node_fn(Tokenizer("en"))(s) == tk_s
 ```
 
 ### Piping

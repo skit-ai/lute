@@ -31,6 +31,35 @@ class NameTransformer(ast.NodeTransformer):
         else:
             return node
 
+class AssignTransformer(ast.NodeTransformer):
+    """
+    Add another assign statement to copy the value of the Variable into a local variable.
+    Variable.id : local_variable.id is stored in visited_assigned_nodes
+    """
+    def __init__(self, input_ids, visited_assigned_nodes):
+        super().__init__()
+        self._input_ids = input_ids
+        self.visited_assigned_nodes = visited_assigned_nodes
+        self.reverse_mapping = dict((v,k) for k, v in visited_assigned_nodes.items())
+
+    def visit_Assign(self, node):
+        all_nodes_getting_assigned = node.targets
+        new_assign_nodes = []
+        for name_node in all_nodes_getting_assigned:
+            if name_node.id in self.visited_assigned_nodes.values():
+                new_assign_node = ast.Assign(
+                    targets = [ast.Name(id=name_node.id, ctx=ast.Store())],
+                    value = ast.Call(
+                        func=ast.Name(id="getattr", ctx=ast.Load()),
+                        args=[ast.Name(id=self.reverse_mapping[name_node.id], ctx=ast.Load()), ast.Str("value")],
+                        keywords=[])
+                )
+                new_assign_nodes.append(new_assign_node)
+
+        nodes_to_return = []
+        nodes_to_return.extend(new_assign_nodes)
+        nodes_to_return.append(node)
+        return nodes_to_return
 
 class ValueTransformer(ast.NodeTransformer):
     """
@@ -40,11 +69,15 @@ class ValueTransformer(ast.NodeTransformer):
     def __init__(self, input_ids):
         super().__init__()
         self._input_ids = input_ids
+        self.visited_assigned_nodes = {}
 
     def visit_Name(self, node):
         if node.id in self._input_ids:
             # If the parent node is not an assign node, replace it with getattr()
             if(not isinstance(node.parent, ast.Assign)):
+                if(node.id in self.visited_assigned_nodes.keys()):
+                    return ast.Name(id=self.visited_assigned_nodes[node.id], ctx=ast.Load())
+
                 return ast.Call(
                     func=ast.Name(id="getattr", ctx=ast.Load()),
                     args=[node, ast.Str("value")],
@@ -53,11 +86,11 @@ class ValueTransformer(ast.NodeTransformer):
 
             # If the parent node is an Assign node, replace it with variable.value with Store() context
             elif(isinstance(node.parent, ast.Assign)):
-                return ast.Attribute(
-                    value=ast.Name(id=node.id, ctx=ast.Load()),
-                    attr='value',
-                    ctx=ast.Store()
-                )
+                if(node.id not in self.visited_assigned_nodes.keys()):
+                    self.visited_assigned_nodes[node.id] = unique_name(node.id)
+
+                return ast.Name(id=self.visited_assigned_nodes[node.id], ctx=ast.Store())
+
         else:
             return node
 
@@ -85,10 +118,11 @@ def fn_node(fn) -> Node:
         for child in ast.iter_child_nodes(node):
             child.parent = node
 
-    tree = ValueTransformer(args).visit(tree)
+    trans_obj = ValueTransformer(args)
+    tree = trans_obj.visit(tree)
+    tree = AssignTransformer(args, trans_obj.visited_assigned_nodes).visit(tree)
     tree = NameTransformer(name, new_name).visit(tree)
     ast.fix_missing_locations(tree)
-
     exec(compile(tree, filename="<ast>", mode="exec"), global_namespace)
 
     def __init__(self):

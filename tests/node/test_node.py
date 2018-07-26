@@ -27,10 +27,32 @@ def which_func(a):
     a = a + 1
     return a
 
+def some_add_func(a , b):
+    return (a+1, b+1)
+
+def what_what_func(a, b, c):
+    a, b = some_add_func(a,b)
+    return (a, b, c)
+
+# def test_multiple_assignments():
+#     x = Variable()
+#     y = Variable()
+#     z = Variable()
+#     func_node = fn_node(what_what_func)()(x, y, z)
+#     g = Graph([x,y,z], func_node)
+#     a, b, c = g.run({
+#         x : 1,
+#         y : 2,
+#         z : 3
+#     })
+#     assert a == 2
+#     assert b == 3
+#     assert c == 3
+
 def test_func_node_replacement():
     x = Constant(2)
     g = Graph(x, x >> fn_node(which_func)())
-    assert g.run() == 34
+    assert g.run() == 3
 
 def test_something():
     x = Variable()

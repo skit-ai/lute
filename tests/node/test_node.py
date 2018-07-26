@@ -41,7 +41,7 @@ def test_multiple_assignments():
     z = Variable()
     func_node = fn_node(what_what_func)()(x, y, z)
     g = Graph([x,y,z], func_node)
-    a, b, c = g.run({
+    a, b, c = g.run(values_dict={
         x : 1,
         y : 2,
         z : 3

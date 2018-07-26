@@ -35,20 +35,20 @@ def what_what_func(a, b, c):
     a, b = some_add_func(a,b)
     return (a, b, c)
 
-# def test_multiple_assignments():
-#     x = Variable()
-#     y = Variable()
-#     z = Variable()
-#     func_node = fn_node(what_what_func)()(x, y, z)
-#     g = Graph([x,y,z], func_node)
-#     a, b, c = g.run(values_dict={
-#         x : 1,
-#         y : 2,
-#         z : 3
-#     })
-#     assert a == 2
-#     assert b == 3
-#     assert c == 3
+def test_multiple_assignments():
+    x = Variable()
+    y = Variable()
+    z = Variable()
+    func_node = fn_node(what_what_func)()(x, y, z)
+    g = Graph([x,y,z], func_node)
+    a, b, c = g.run({
+        x : 1,
+        y : 2,
+        z : 3
+    })
+    assert a == 2
+    assert b == 3
+    assert c == 3
 
 def conditional_func(a, b):
     if True:

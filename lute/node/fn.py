@@ -43,9 +43,12 @@ class AssignTransformer(ast.NodeTransformer):
         self.reverse_mapping = dict((v,k) for k, v in visited_assigned_nodes.items())
 
     def visit_Assign(self, node):
-        all_nodes_getting_assigned = node.targets
+        if(isinstance(node.targets[0], ast.Tuple)):
+            target_nodes = node.targets[0].elts
+        else:
+            target_nodes = [node.targets[0]]
         new_assign_nodes = []
-        for name_node in all_nodes_getting_assigned:
+        for name_node in target_nodes:
             if name_node.id in self.visited_assigned_nodes.values():
                 new_assign_node = ast.Assign(
                     targets = [ast.Name(id=name_node.id, ctx=ast.Store())],
@@ -73,8 +76,15 @@ class ValueTransformer(ast.NodeTransformer):
 
     def visit_Name(self, node):
         if node.id in self._input_ids:
+            # If the parent node is an Assign node, replace it with variable.value with Store() context
+            if(isinstance(node.parent, ast.Assign) or (isinstance(node.parent, ast.Tuple) and isinstance(node.parent.parent, ast.Assign))):
+                if(node.id not in self.visited_assigned_nodes.keys()):
+                    self.visited_assigned_nodes[node.id] = unique_name(node.id)
+
+                return ast.Name(id=self.visited_assigned_nodes[node.id], ctx=ast.Store())
+
             # If the parent node is not an assign node, replace it with getattr()
-            if(not isinstance(node.parent, ast.Assign)):
+            elif(not isinstance(node.parent, ast.Assign)):
                 if(node.id in self.visited_assigned_nodes.keys()):
                     return ast.Name(id=self.visited_assigned_nodes[node.id], ctx=ast.Load())
 
@@ -83,14 +93,6 @@ class ValueTransformer(ast.NodeTransformer):
                     args=[node, ast.Str("value")],
                     keywords=[]
                 )
-
-            # If the parent node is an Assign node, replace it with variable.value with Store() context
-            elif(isinstance(node.parent, ast.Assign)):
-                if(node.id not in self.visited_assigned_nodes.keys()):
-                    self.visited_assigned_nodes[node.id] = unique_name(node.id)
-
-                return ast.Name(id=self.visited_assigned_nodes[node.id], ctx=ast.Store())
-
         else:
             return node
 

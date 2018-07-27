@@ -66,6 +66,78 @@ def test_expansion_hi():
     }]
 
 
+def test_expansion_regex():
+    exp = {
+        "hello": ["hola", "hell?o", "hey!?( there)?"],
+        "world": ["planet( earth| venus| kek)+", "world", "universe"]
+    }
+
+    x = Variable()
+    e = ExpansionSearch(["hello", "world"], exp)(x)
+    g = Graph(x, e)
+
+    assert g.run("Helo world") == [{
+        "type": "expansion",
+        "value": "hello",
+        "range": (0, 4)
+    }, {
+        "type": "expansion",
+        "value": "world",
+        "range": (5, 10)
+    }]
+    assert g.run("hey there, thank you!") == [{
+        "type": "expansion",
+        "value": "hello",
+        "range": (0, 9)
+    }]
+    assert g.run("hola planet") == [{
+        "type": "expansion",
+        "value": "hello",
+        "range": (0, 4)
+    }]
+    assert g.run("hola planet mars") == [{
+        "type": "expansion",
+        "value": "hello",
+        "range": (0, 4)
+    }]
+    assert g.run("lol planet kek") == [{
+        "type": "expansion",
+        "value": "world",
+        "range": (4, 14)
+    }]
+
+
+def test_expansion_regex_hi():
+    exp = {
+        "account": ["(सैलरी |सेविंग्स )?अकाउंट"],
+        "card": ["कार्ड", "कॉर्ड"],
+        "lost": ["खो(या|ये|ए)?", "गु(म|मा)", "गायब", "लुप्त"]
+    }
+
+    x = Variable()
+    g = Graph(x, x >> ExpansionSearch(["account", "card", "lost"], exp, lang="hi"))
+
+    assert g.run("कार्ड खोया था") == [{
+        "type": "expansion",
+        "value": "card",
+        "range": (0, 5)
+    }, {
+        "type": "expansion",
+        "value": "lost",
+        "range": (6, 10)
+    }]
+    assert g.run("सैलरी अकाउंट चाहिए") == [{
+        "type": "expansion",
+        "value": "account",
+        "range": (0, 12)
+    }]
+    assert g.run("अकाउंट चाहिए") == [{
+        "type": "expansion",
+        "value": "account",
+        "range": (0, 6)
+    }]
+
+
 def test_list():
     terms = [
         "Blue moon",

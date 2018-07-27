@@ -5,9 +5,10 @@ Generic search handler
 import re
 from typing import Dict, List
 
-from lute.node import Node
 from pydash import py_
 from yamraz.tokenizer import tokenize
+
+from lute.node import Node
 
 
 class ExpansionSearch(Node):
@@ -15,22 +16,15 @@ class ExpansionSearch(Node):
     Class for expansion based search
     """
 
-    def __init__(self, terms: List[str], exp: Dict, lang: str = "en"):
+    def __init__(self, terms: List[str], exp: Dict, lang: str = "en", regex=True):
         self.terms = terms
         self.exp = exp
         self.lang = lang
         self.search_type = "expansion"
         self._validate_expansions()
+        if regex is False:
+            self._escape_expansions()
         self._prepare_matcher()
-
-    def _prepare_matcher(self):
-        """
-        Precompile regex for the relevant expansions
-        """
-
-        self.re_patterns = {}
-        for term in self.terms:
-            self.re_patterns[term] = re.compile(r"\s" + r"\s|\s".join(self.exp[term]) + r"\s", re.I | re.UNICODE)
 
     def _validate_expansions(self):
         """
@@ -42,6 +36,24 @@ class ExpansionSearch(Node):
                 self.exp[term]
             except KeyError:
                 raise KeyError("Term {} not found in expansion dict".format(term))
+
+    def _escape_expansions(self):
+        """
+        Escape expansions to avoid regexy characters
+        """
+
+        for term in self.terms:
+            escaped = [re.escape(form) for form in self.exp[term]]
+            self.exp[term] = escaped
+
+    def _prepare_matcher(self):
+        """
+        Precompile regex for the relevant expansions
+        """
+
+        self.re_patterns = {}
+        for term in self.terms:
+            self.re_patterns[term] = re.compile(r"\s" + r"\s|\s".join(self.exp[term]) + r"\s", re.I | re.UNICODE)
 
     def __call__(self, other: Node):
         self._register_predecessors([other])
@@ -79,7 +91,7 @@ class ListSearch(ExpansionSearch):
     """
 
     def __init__(self, terms: List[str], lang: str = "en"):
-        super().__init__(terms, self._generate_expansions(terms), lang=lang)
+        super().__init__(terms, self._generate_expansions(terms), lang=lang, regex=False)
         self.search_type = "list"
 
     def _generate_expansions(self, terms):

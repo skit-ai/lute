@@ -1,5 +1,6 @@
 from lute.graph import Graph
 from lute.node import Constant, Identity, Variable
+from lute.node.fn import node_fn
 from lute.node.search import ExpansionSearch, ListSearch
 from lute.node.search.constraint import ConstraintSearch
 
@@ -152,6 +153,21 @@ def test_list():
     assert g.run("Hello world") == []
     assert g.run("hola planet venus") == [{ "type": "list", "value": "venus", "range": (12, 17) }]
     assert g.run("What is a blue moon?") == [{ "type": "list", "value": "Blue moon", "range": (10, 19) }]
+
+
+def test_list_regex():
+    terms = [
+        "Hello - world",
+        "f*?k",
+        "(+ 11 2)"
+    ]
+
+    fn = node_fn(ListSearch(terms))
+
+    assert fn("Hello world, how art thou?") == []
+    assert fn("Hello - world, how art thou?") == [{ "type": "list", "value": terms[0], "range": (0, 13) }]
+    assert fn("what the f*?k!") == [{ "type": "list", "value": terms[1], "range": (9, 13) }]
+    assert fn("(print (+ 11 2))") == [{ "type": "list", "value": terms[2], "range": (7, 15) }]
 
 
 def test_constraints_partial():

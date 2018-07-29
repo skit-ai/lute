@@ -2,35 +2,56 @@
 Visualization for graph
 """
 
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 import matplotlib.pyplot as plt
 import networkx as nx
+
 from lute.graph.base import Graph
 from lute.node.base import Node
 
 
-def make_nx_graph(g: Graph) -> nx.DiGraph:
-    dg = nx.DiGraph()
+def generate_dagre_data(g: Graph) -> Dict:
+    """
+    Generate json data for dagre
+    """
 
-    seen = []
-    edges = []
+    def _node_to_dict(node: Node) -> Dict:
+        if node in g.inputs:
+            node_type = "input"
+        elif node in g.outputs:
+            node_type = "output"
+        else:
+            node_type = None
+
+        return {
+            "name": node.name_str(),
+            "value": node.value_str(),
+            "type": node_type
+        }
+
+    graph = {
+        "nodes": [],
+        "edges": []
+    }
+
+    visited = []
     todo = g.inputs + g.outputs
 
     while len(todo) > 0:
         node = todo.pop()
-        dg.add_node(node)
-        seen.append(node)
-        succ = [n for n in node.successors if n not in seen]
-        edges += [(node, s) for s in succ]
-        pred = [n for n in node.predecessors if n not in seen]
-        edges += [(p, node) for p in pred]
+        graph["nodes"].append(node)
+        visited.append(node)
+        succ = [n for n in node.successors if n not in visited]
+        graph["edges"] += [(node, s) for s in succ]
+        pred = [n for n in node.predecessors if n not in visited]
+        graph["edges"] += [(p, node) for p in pred]
         todo += (succ + pred)
 
-    for u, v in edges:
-        dg.add_edge(u, v)
+    graph["nodes"] = [_node_to_dict(n) for n in graph["nodes"]]
+    graph["edges"] = [(x.name_str(), y.name_str()) for x, y in graph["edges"]]
 
-    return dg
+    return graph
 
 
 def plot_graph(g: Graph, **kwargs):

@@ -4,8 +4,9 @@ Constraint finding nodes
 
 from typing import Any, Dict, List, Tuple
 
-from lute.node import Node
 from pydash import py_
+
+from lute.node import Node
 
 Constraint = Dict[str, Any]
 

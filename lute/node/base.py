@@ -134,14 +134,20 @@ class Node(metaclass=NodeMeta):
         else:
             raise TypeError("Unknown right hand side encountered while piping")
 
-    def __repr__(self):
-        name_str = self._id
+    def name_str(self):
         if self.name is not None:
-            name_str = "{}-({})".format(self.name, name_str)
+            return "{}-({})".format(self.name, self._id)
+        else:
+            return self._id
 
-        value_str = repr(self.value) if self.evaluated else "unevaluated"
+    def value_str(self):
+        if self.evaluated:
+            return repr(self.value)
+        else:
+            return "unevaluated"
 
-        return "<{}: {}>".format(name_str, value_str)
+    def __repr__(self):
+        return "<{}: {}>".format(self.name_str(), self.value_str())
 
 
 class Constant(Node):

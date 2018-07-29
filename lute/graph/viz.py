@@ -4,9 +4,6 @@ Visualization for graph
 
 from typing import Dict, List, Tuple
 
-import matplotlib.pyplot as plt
-import networkx as nx
-
 from lute.graph.base import Graph
 from lute.node.base import Node
 
@@ -52,21 +49,3 @@ def generate_dagre_data(g: Graph) -> Dict:
     graph["edges"] = [(x.name_str(), y.name_str()) for x, y in graph["edges"]]
 
     return graph
-
-
-def plot_graph(g: Graph, **kwargs):
-    nxg = make_nx_graph(g)
-    fig, ax = plt.subplots(**kwargs)
-
-    pos = nx.spring_layout(nxg)
-
-    nx.draw_networkx_edges(nxg, pos, ax=ax, edgelist=nxg.edges, alpha=0.5)
-    nx.draw_networkx_nodes(nxg, pos, ax=ax, nodelist=g.inputs, node_color="#1abc9c")
-    nx.draw_networkx_nodes(nxg, pos, ax=ax, nodelist=g.outputs, node_color="#3498db")
-    intermittent_nodes = [n for n in nxg.nodes if n not in g.inputs + g.outputs]
-    nx.draw_networkx_nodes(nxg, pos, ax=ax, nodelist=intermittent_nodes,
-                           node_color="#95a5a6", node_shape="o", with_labels=True)
-
-    nx.draw_networkx_labels(nxg, pos, ax=ax, labels={n: repr(n) for n in nxg.nodes}, alpha=0.7)
-    plt.axis("off")
-    plt.show()

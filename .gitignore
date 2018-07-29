@@ -94,3 +94,4 @@ ENV/
 .code
 /pyproject.lock
 /lute/viz-js/data.json
+/lute/viz-js/data.js

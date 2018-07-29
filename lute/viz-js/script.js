@@ -1,56 +1,54 @@
 document.addEventListener('DOMContentLoaded', function () {
-  d3.json('/data.json').then(data => {
-    let g = new dagreD3.graphlib.Graph().setGraph({})
+  let g = new dagreD3.graphlib.Graph().setGraph({})
 
-    for (let node of data.nodes) {
-      let bg = 'white'
-      let fg = '#333'
-      if (node.type === 'input') {
-        bg = '#333'
-        fg = 'white'
-      } else if (node.type === 'output') {
-        bg = '#008080'
-        fg = 'white'
-      } else if (node.value !== 'unevaluated') {
-        bg = '#ccc'
-      }
-
-      let value = {
-        rx: 5,
-        ry: 5,
-        shape: 'rect',
-        label: node.name,
-        labelStyle: `fill: ${fg}`,
-        style: `fill: ${bg}; stroke: ${fg}`,
-        description: node.value
-      }
-      g.setNode(node.name, value)
+  for (let node of data.nodes) {
+    let bg = 'white'
+    let fg = '#333'
+    if (node.type === 'input') {
+      bg = '#333'
+      fg = 'white'
+    } else if (node.type === 'output') {
+      bg = '#008080'
+      fg = 'white'
+    } else if (node.value !== 'unevaluated') {
+      bg = '#ccc'
     }
 
-    for (let edge of data.edges) {
-      g.setEdge(edge[0], edge[1], { arrowhead: 'vee' })
+    let value = {
+      rx: 5,
+      ry: 5,
+      shape: 'rect',
+      label: node.name,
+      labelStyle: `fill: ${fg}`,
+      style: `fill: ${bg}; stroke: ${fg}`,
+      description: node.value
     }
+    g.setNode(node.name, value)
+  }
 
-    let render = new dagreD3.render()
+  for (let edge of data.edges) {
+    g.setEdge(edge[0], edge[1], { arrowhead: 'vee' })
+  }
 
-    let svg = d3.select('svg')
-    let inner = svg.append('g')
+  let render = new dagreD3.render()
 
-    let zoom = d3.zoom()
-        .on('zoom', function() {
-          inner.attr('transform', d3.event.transform)
-        })
+  let svg = d3.select('svg')
+  let inner = svg.append('g')
 
-    render(inner, g)
-    svg.call(zoom)
+  let zoom = d3.zoom()
+      .on('zoom', function() {
+        inner.attr('transform', d3.event.transform)
+      })
 
-    let { height, width } = svg.node().getBoundingClientRect()
-    svg.call(zoom.transform,
-             d3.zoomIdentity.translate((width - g.graph().width) / 2, (height - g.graph().height) / 2))
+  render(inner, g)
+  svg.call(zoom)
 
-    inner.selectAll('g.node')
-      .attr('title', v => g.node(v).description)
+  let { height, width } = svg.node().getBoundingClientRect()
+  svg.call(zoom.transform,
+           d3.zoomIdentity.translate((width - g.graph().width) / 2, (height - g.graph().height) / 2))
 
-    tippy('g.node', { size: 'large' })
-  })
+  inner.selectAll('g.node')
+    .attr('title', v => g.node(v).description)
+
+  tippy('g.node', { size: 'large' })
 })

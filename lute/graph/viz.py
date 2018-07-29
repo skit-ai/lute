@@ -2,10 +2,9 @@
 Visualization for graph
 """
 
-import http.server
 import json
 import os
-import socketserver
+import webbrowser
 from typing import Dict, List, Tuple
 
 import pkg_resources
@@ -57,19 +56,10 @@ def generate_dagre_data(g: Graph) -> Dict:
     return graph
 
 
-def plot_graph(g: Graph, port=8999):
+def plot_graph(g: Graph):
     serve_dir = pkg_resources.resource_filename("lute", "viz-js")
 
-    with open(os.path.join(serve_dir, "data.json"), "w") as fp:
-        json.dump(generate_dagre_data(g), fp)
+    with open(os.path.join(serve_dir, "data.js"), "w") as fp:
+        fp.write("let data = {}".format(json.dumps(generate_dagre_data(g))))
 
-    os.chdir(serve_dir)
-
-    Handler = http.server.SimpleHTTPRequestHandler
-    httpd = socketserver.TCPServer(("", port), Handler)
-    print("Serving at http://localhost:{}".format(port))
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    httpd.server_close()
+    webbrowser.open(os.path.join(serve_dir, "index.html"))

@@ -43,7 +43,15 @@ result = ClientNode()([rule_intent, vector_intent])
 # `text` is the input. For output we want the final `result` and also
 # the parsed `entities`.
 g = Graph(text, [result, entities])
+```
 
+The computation graph can be visualized using `plot_graph` from
+`lute.graph.viz`. Here is a plot for the graph shown above (outputs are in teal
+and input nodes are in black):
+
+![Example graph](./example.png)
+
+```python
 # You can either provide a mapping of (Variable) Nodes to values using
 # values_dict keyword argument
 g.run(values_dict={ text: "Whats up people!" })
@@ -67,9 +75,10 @@ from collections import Counter
 
 import numpy as np
 import requests
+
 from lute.graph import Graph
 from lute.node import Node, Variable
-from lute.node.fn import fn_node
+from lute.node.fn import fn_node, node_fn
 
 
 class Frequency(Node):
@@ -173,7 +182,6 @@ def fun(text, vectors):
 To make this a node, just call `fn_node` on it.
 
 ```python
-from lute.node.fn import fn_node
 
 Fun = fn_node(fun)
 
@@ -191,7 +199,6 @@ in a plain function and get away with the whole lazy thing. `node_fn` does that
 for you. Specifically:
 
 ```python
-from lute.node.fn import node_fn
 
 tk_fn = node_fn(Tokenizer("en"))
 

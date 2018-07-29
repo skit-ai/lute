@@ -1,0 +1,26 @@
+html, body {
+  height: 100%;
+}
+
+body {
+  font: 300 14px 'Helvetica Neue', Helvetica;
+}
+
+svg {
+  height: 100%;
+  width: 100%;
+}
+
+.node rect,
+.node circle,
+.node ellipse {
+  stroke: #333;
+  fill: #fff;
+  stroke-width: 1px;
+}
+
+.edgePath path {
+  stroke: #777;
+  fill: #777;
+  stroke-width: 1.5px;
+}

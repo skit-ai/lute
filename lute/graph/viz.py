@@ -2,7 +2,13 @@
 Visualization for graph
 """
 
+import http.server
+import json
+import os
+import socketserver
 from typing import Dict, List, Tuple
+
+import pkg_resources
 
 from lute.graph.base import Graph
 from lute.node.base import Node
@@ -49,3 +55,21 @@ def generate_dagre_data(g: Graph) -> Dict:
     graph["edges"] = [(x.name_str(), y.name_str()) for x, y in graph["edges"]]
 
     return graph
+
+
+def plot_graph(g: Graph, port=8999):
+    serve_dir = pkg_resources.resource_filename("lute", "viz-js")
+
+    with open(os.path.join(serve_dir, "data.json"), "w") as fp:
+        json.dump(generate_dagre_data(g), fp)
+
+    os.chdir(serve_dir)
+
+    Handler = http.server.SimpleHTTPRequestHandler
+    httpd = socketserver.TCPServer(("", port), Handler)
+    print("Serving at http://localhost:{}".format(port))
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    httpd.server_close()

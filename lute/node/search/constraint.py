@@ -50,9 +50,9 @@ class ConstraintSearch(Node):
         Return constraints and missing keys
         """
 
-        results = [(c, self._missing_keys(c)) for c in self.constraints]
+        results = [{ "constraint": c, "missing": self._missing_keys(c) } for c in self.constraints]
 
         if self.partial:
-            return py_.filter(results, lambda it: len(it[1]) < len(it[0]))
+            return py_.filter(results, lambda it: len(it["missing"]) < len(it["constraint"]))
         else:
-            return py_.filter(results, lambda it: len(it[1]) == 0)
+            return py_.filter(results, lambda it: len(it["missing"]) == 0)

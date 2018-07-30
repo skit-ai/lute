@@ -56,10 +56,11 @@ def generate_dagre_data(g: Graph) -> Dict:
     return graph
 
 
-def plot_graph(g: Graph):
+def plot_graph(g: Graph, open_browser=True):
     serve_dir = pkg_resources.resource_filename("lute", "viz-js")
 
     with open(os.path.join(serve_dir, "data.js"), "w") as fp:
         fp.write("let data = {}".format(json.dumps(generate_dagre_data(g))))
 
-    webbrowser.open(os.path.join(serve_dir, "index.html"))
+    if open_browser:
+        webbrowser.open(os.path.join(serve_dir, "index.html"))

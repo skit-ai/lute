@@ -11,6 +11,7 @@ pydash = "^4.6"
 yamraz = "0.2.2"
 decorator = "^4.3"
 requests = "^2.19"
+scikit-learn = "^0.19.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"

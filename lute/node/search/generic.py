@@ -96,3 +96,40 @@ class ListSearch(ExpansionSearch):
 
     def _generate_expansions(self, terms):
         return {k: [k] for k in terms}
+
+
+class Canonicalize(Node):
+    """
+    Use the search results on the string to convert in a canonical form.
+    """
+
+    def __init__(self):
+        pass
+
+    def __call__(self, text: Node, search_results: Node):
+        self._register_predecessors([text, search_results])
+        self._text_node = text
+        self._search_results = search_results
+
+        return self
+
+    def _filter_searches(self):
+        return sorted(self._search_results.value, key=lambda res: res["range"][0])
+
+    def _mutate(self, searches):
+        """
+        TODO Take care of overlaps and ties properly
+        """
+
+        offset = 0
+        text = list(self._text_node.value)
+        for search in searches:
+            rng = search["range"]
+            replacement = list(search["value"])
+            text[rng[0] - offset:rng[1] - offset] = list(replacement)
+            offset += (rng[1] - rng[0]) - len(replacement)
+
+        return "".join(text)
+
+    def eval(self):
+        return self._mutate(self._filter_searches())

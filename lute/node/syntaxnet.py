@@ -1,5 +1,6 @@
 import requests
 
+
 class SyntaxNet(Node):
     """
     Syntaxnet node
@@ -19,4 +20,3 @@ class SyntaxNet(Node):
         req = requests.post(self.root_url, data={self._text_node.value}, headers={"Content-Type": "text/plain"})
         output = req.json()
         return output
-

@@ -1,1 +1,1 @@
-from .generic import ExpansionSearch, ListSearch
+from .generic import Canonicalize, ExpansionSearch, ListSearch

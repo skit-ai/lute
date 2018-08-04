@@ -71,7 +71,6 @@ class ExpansionSearch(Node):
         results = []
         for term in self.terms:
             matches = self._get_matches(term)
-            print(matches)
             results.extend([{
                 "type": self.search_type,
                 "value": term,

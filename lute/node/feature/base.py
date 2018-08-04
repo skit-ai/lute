@@ -2,8 +2,9 @@
 Basic feature extractors
 """
 
-from lute.node import Node
 from pydash import py_
+
+from lute.node import Node
 
 
 class NGrams(Node):
@@ -41,8 +42,6 @@ class NGrams(Node):
 
         for n in self.ns:
             ngrams.extend(self._generate_ngrams(tokens, n))
-
-        print(ngrams)
 
         if self._allowed_items is not None:
             ngrams = py_.filter(ngrams, lambda ng: any([tk in self._allowed_items.value for tk in ng]))

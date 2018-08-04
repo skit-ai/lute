@@ -12,7 +12,7 @@ decorator = "^4.3"
 requests = "^2.19"
 scikit-learn = "^0.19.2"
 scipy = "^1.1"
-yamraz = "^0.2.6"
+yamraz = "0.2.7"
 regex = "^2018.7"
 
 [tool.poetry.dev-dependencies]

@@ -158,16 +158,16 @@ def test_list():
 def test_list_regex():
     terms = [
         "Hello - world",
-        "f*?k",
-        "(+ 11 2)"
+        "f*ck",
+        "( + 11 2 )"
     ]
 
     fn = node_fn(ListSearch(terms))
 
     assert fn("Hello world, how art thou?") == []
     assert fn("Hello - world, how art thou?") == [{ "type": "list", "value": terms[0], "range": (0, 13) }]
-    assert fn("what the f*?k!") == [{ "type": "list", "value": terms[1], "range": (9, 13) }]
-    assert fn("(print (+ 11 2))") == [{ "type": "list", "value": terms[2], "range": (7, 15) }]
+    assert fn("what the f*ck!") == [{ "type": "list", "value": terms[1], "range": (9, 13) }]
+    assert fn("(print (+ 11 2))") == [{ "type": "list", "value": terms[2], "range": (8, 18) }]
 
 
 def test_constraints_partial():

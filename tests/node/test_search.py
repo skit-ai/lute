@@ -1,7 +1,7 @@
 from lute.graph import Graph
-from lute.node import Constant, Identity, Variable
+from lute.node import Variable
 from lute.node.fn import node_fn
-from lute.node.search import ExpansionSearch, ListSearch
+from lute.node.search import Canonicalize, ExpansionSearch, ListSearch
 from lute.node.search.constraint import ConstraintSearch
 
 
@@ -139,6 +139,43 @@ def test_expansion_regex_hi():
     }]
 
 
+def test_canonicalization():
+    exp = {
+        "hello": ["hola", "hello", "hey"],
+        "world": ["earth", "planet earth", "world", "universe"]
+    }
+
+    terms = ["hello", "world"]
+
+    x = Variable()
+    c = Canonicalize()(x, x >> ExpansionSearch(terms, exp))
+    g = Graph(x, c)
+
+    assert g.run("hola universe") == "hello world"
+    assert g.run("hey planet earth") == "hello world"
+
+
+def test_canonicalization_dup():
+    exp = {
+        "hello": ["hola", "hello", "hey"],
+        "world": ["earth", "planet earth", "world", "universe"]
+    }
+
+    terms = ["hello", "world"]
+
+    x = Variable()
+    es = ExpansionSearch(terms, exp)(x)
+
+    c_dup = Canonicalize(remove_duplicates=False)(x, es)
+    g_dup = Graph(x, c_dup)
+
+    c = Canonicalize(remove_duplicates=True)(x, es)
+    g = Graph(x, c)
+
+    assert g_dup.run("hey planet earth universe world") == "hello world world world"
+    assert g.run("hey planet earth universe world") == "hello world"
+
+
 def test_list():
     terms = [
         "Blue moon",
@@ -158,8 +195,7 @@ def test_list():
 def test_list_regex():
     terms = [
         "Hello - world",
-        "f*ck",
-        "( + 11 2 )"
+        "f*ck"
     ]
 
     fn = node_fn(ListSearch(terms))
@@ -167,7 +203,6 @@ def test_list_regex():
     assert fn("Hello world, how art thou?") == []
     assert fn("Hello - world, how art thou?") == [{ "type": "list", "value": terms[0], "range": (0, 13) }]
     assert fn("what the f*ck!") == [{ "type": "list", "value": terms[1], "range": (9, 13) }]
-    assert fn("(print (+ 11 2))") == [{ "type": "list", "value": terms[2], "range": (8, 18) }]
 
 
 def test_constraints_partial():

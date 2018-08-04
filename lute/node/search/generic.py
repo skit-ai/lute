@@ -2,11 +2,9 @@
 Generic search handler
 """
 
-import re
-from typing import Dict, List
+from typing import Any, Dict, List
 
-from pydash import py_
-from yamraz.tokenizer import tokenize
+import regex as re
 
 from lute.node import Node
 
@@ -53,7 +51,7 @@ class ExpansionSearch(Node):
 
         self.re_patterns = {}
         for term in self.terms:
-            self.re_patterns[term] = re.compile(r"\s" + r"\s|\s".join(self.exp[term]) + r"\s", re.I | re.UNICODE)
+            self.re_patterns[term] = re.compile(r"\b" + r"\b|\b".join(self.exp[term]) + r"\b", re.I | re.UNICODE)
 
     def __call__(self, other: Node):
         self._register_predecessors([other])
@@ -61,25 +59,23 @@ class ExpansionSearch(Node):
 
         return self
 
-    def _get_matches(self, term: str) -> bool:
-        return list(self.re_patterns[term].finditer(self._text))
+    def _get_matches(self, term: str) -> List[Any]:
+        return list(self.re_patterns[term].finditer(self._text_node.value))
 
     def eval(self):
         """
         Search for terms based on expansions
-        NOTE: This assume untokenized strings
+        NOTE: This assume antagonized strings
         """
-
-        # Clean up text
-        self._text = " " + " ".join(tokenize(self._text_node.value, self.lang)) + " "
 
         results = []
         for term in self.terms:
             matches = self._get_matches(term)
+            print(matches)
             results.extend([{
                 "type": self.search_type,
                 "value": term,
-                "range": (m.span()[0], m.span()[1] - 2)
+                "range": (m.span()[0], m.span()[1])
             } for m in matches])
 
         return results
@@ -103,8 +99,8 @@ class Canonicalize(Node):
     Use the search results on the string to convert in a canonical form.
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, remove_duplicates=False):
+        self.remove_duplicates = remove_duplicates
 
     def __call__(self, text: Node, search_results: Node):
         self._register_predecessors([text, search_results])
@@ -114,13 +110,32 @@ class Canonicalize(Node):
         return self
 
     def _filter_searches(self):
-        return sorted(self._search_results.value, key=lambda res: res["range"][0])
+        """
+        In case of overlaps, keep the larger result
+        """
+
+        def _overlap_p(res1, res2):
+            first, second = (res1, res2) if res1["range"][0] < res2["range"][0] else (res2, res1)
+            return first["range"][1] >= second["range"][0]
+
+        ordered = sorted(self._search_results.value, key=lambda res: res["range"][1] - res["range"][0], reverse=True)
+
+        filtered = []
+        matched = set()
+
+        for it in ordered:
+            # NOTE: There are optimizations possible but are not important at the moment
+            if self.remove_duplicates and it["value"] in matched:
+                it_copy = it.copy()
+                it_copy["value"] = ""
+                filtered.append(it_copy)
+            elif not any([_overlap_p(it, fit) for fit in filtered]):
+                matched.add(it["value"])
+                filtered.append(it)
+
+        return sorted(filtered, key=lambda res: res["range"][0])
 
     def _mutate(self, searches):
-        """
-        TODO Take care of overlaps and ties properly
-        """
-
         offset = 0
         text = list(self._text_node.value)
         for search in searches:
@@ -132,4 +147,4 @@ class Canonicalize(Node):
         return "".join(text)
 
     def eval(self):
-        return self._mutate(self._filter_searches())
+        return " ".join(self._mutate(self._filter_searches()).split())

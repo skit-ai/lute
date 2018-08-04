@@ -105,7 +105,9 @@ class RankConstraints(Node):
         ranked = sorted([{**c, "score": self._match_score(c)} for c in self._cons_node.value],
                         key=lambda c: c["score"], reverse=True)
 
-        tf = TfidfVectorizer().fit_transform([" ".join(c["constraint"].values()) for c in ranked])
-        tf_scores = tf.todense().sum(axis=1)
-
-        return self._disambiguate(ranked, tf_scores)
+        try:
+            tf = TfidfVectorizer().fit_transform([" ".join(c["constraint"].values()) for c in ranked])
+            tf_scores = tf.todense().sum(axis=1)
+            return self._disambiguate(ranked, tf_scores)
+        except ValueError:
+            return ranked

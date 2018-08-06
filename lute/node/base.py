@@ -7,7 +7,9 @@ class NodeTuple:
     A collection type for working with parallel piping
     """
 
-    def __init__(self, nodes=[]):
+    def __init__(self, nodes=None):
+        if nodes is None:
+            nodes = []
         self.nodes = nodes
 
     def __getitem__(self, key):
@@ -33,6 +35,7 @@ class NodeMeta(ABCMeta):
         base_cls = "Node"
         if cls.__name__ != base_cls:
             original_init = cls.__init__
+
             def __init__(self, *args, **kwargs):
                 if base_cls in [c.__name__ for c in cls.__bases__]:
                     # Only auto call super for the direct children of base_cls
@@ -106,6 +109,10 @@ class Node(metaclass=NodeMeta):
         for pred in predecessors:
             if self not in pred.successors:
                 pred.successors.append(self)
+
+    @abstractmethod
+    def __call__(self, *args, **kwargs):
+        ...
 
     def __str__(self):
         return self._id

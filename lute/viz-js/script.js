@@ -7,6 +7,11 @@ function simplifyName (nodeName) {
   }
 }
 
+function clipDescription (nodeDesc) {
+  let maxlen = 500
+  return nodeDesc.slice(0, maxlen)
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   let g = new dagreD3.graphlib.Graph().setGraph({})
 
@@ -57,7 +62,14 @@ document.addEventListener('DOMContentLoaded', function () {
            d3.zoomIdentity.translate((width - g.graph().width) / 2, (height - g.graph().height) / 2))
 
   inner.selectAll('g.node')
-    .attr('title', v => g.node(v).description)
+    .attr('title', v => clipDescription(g.node(v).description))
+
+  inner.selectAll('g.node')
+    .on('click', function (v) {
+      let node = g.node(v)
+      d3.select('.title').text(node.label)
+      d3.select('.desc').text(node.description)
+    })
 
   tippy('g.node', { size: 'large' })
 })

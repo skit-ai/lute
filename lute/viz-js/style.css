@@ -29,3 +29,32 @@ svg {
   fill: #777;
   stroke-width: 1.5px;
 }
+
+#side-panel {
+  position: fixed;
+  top: -100px;
+  bottom: -100px;
+  left: -100px;
+  width: 20%;
+  padding: 130px;
+  padding-right: 30px;
+  color: #333;
+  background-color: #eee;
+  box-shadow: 0 0 10px 0 #888 inset;
+}
+
+#side-panel .title {
+  font-size: 20px;
+  margin: 20px 0;
+}
+
+#side-panel .desc {
+  font-family: 'monospace';
+  flex-wrap: wrap;
+}
+
+#side-panel .header {
+  text-transform: uppercase;
+  color: #888;
+  letter-spacing: 10px;
+}

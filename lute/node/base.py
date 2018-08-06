@@ -39,9 +39,10 @@ class NodeMeta(ABCMeta):
             def __init__(self, *args, name=None, **kwargs):
                 if base_cls in [c.__name__ for c in cls.__bases__]:
                     # Only auto call super for the direct children of base_cls
-                    super(cls, self).__init__(*args, name=name, **kwargs)
+                    super(cls, self).__init__(*args, **kwargs)
 
                 original_init(self, *args, **kwargs)
+                self.name = name
                 self._id = cls.__gen_id__()
 
             __init__.__wrapped__ = original_init
@@ -59,7 +60,6 @@ class Node(metaclass=NodeMeta):
 
     @abstractmethod
     def __init__(self, *args, **kwargs):
-        self.name = kwargs.get("name")
         self._id = None
         self._output_val = None
         self.evaluated = False

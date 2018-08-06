@@ -2,6 +2,7 @@ from lute.graph import Graph
 from lute.node import Constant, Identity, Variable
 from lute.node.fn import fn_node, node_fn
 from lute.node.preprocess import Tokenizer
+from lute.node.search import ListSearch
 
 
 def test_id():
@@ -20,20 +21,33 @@ def test_id():
     v1 = Variable()
     assert v1._id == 'Variable_1'
 
+
+def test_names():
+    c = Constant(3, name="rerer")
+    assert c.name == "rerer"
+
+    ls = ListSearch([], name="rerer")
+    assert ls.name == "rerer"
+
+
 def what_func(a, b, c):
     a = b+c
     return a
+
 
 def which_func(a):
     a = a + 1
     return a
 
+
 def some_add_func(a , b):
     return (a+1, b+1)
+
 
 def what_what_func(a, b, c):
     a, b = some_add_func(a,b)
     return (a, b, c)
+
 
 def test_multiple_assignments():
     x = Variable()
@@ -50,12 +64,14 @@ def test_multiple_assignments():
     assert b == 3
     assert c == 3
 
+
 def conditional_func(a, b):
     if True:
         a = a + 1
     else:
         b = b + 1
     return 22
+
 
 def test_conditional_call():
     """
@@ -77,10 +93,12 @@ def test_conditional_call():
     # Since branch for b won't run, updation of b should not throw error
     assert N.value == 22
 
+
 def test_func_node_replacement():
     x = Constant(2)
     g = Graph(x, x >> fn_node(which_func)())
     assert g.run() == 3
+
 
 def test_something():
     x = Variable()
@@ -90,6 +108,7 @@ def test_something():
     g = Graph(x, [y, z])
     y_out, z_out = g.run(10)
     assert y_out == z_out
+
 
 def test_func_node():
     x = Variable()
@@ -104,8 +123,10 @@ def test_func_node():
     })
     assert(result == 5)
 
+
 def test_node_func():
     x = Variable()
+
 
 def test_node_func_interface():
     s = "hello world"

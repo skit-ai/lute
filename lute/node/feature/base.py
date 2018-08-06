@@ -68,7 +68,7 @@ class POSTagger(Node):
     def eval(self):
         req = requests.post(
             self.root_url,
-            data={self._text.value.encode('utf-8')},
+            data=self._text.value.encode('utf-8'),
             headers={"Content-Type": "text/plain"}
         )
-        return req.json()
+        return req.json()[0]

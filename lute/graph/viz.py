@@ -28,7 +28,7 @@ def generate_dagre_data(g: Graph) -> Dict:
 
         return {
             "name": node.name_str(),
-            "value": node.value_str(),
+            "value": node.value_str(pretty=True),
             "type": node_type
         }
 

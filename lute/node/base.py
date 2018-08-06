@@ -1,5 +1,8 @@
+import pprint
 from abc import ABCMeta, abstractmethod
 from typing import Any
+
+pp = pprint.PrettyPrinter(indent=2, width=50)
 
 
 class NodeTuple:
@@ -147,9 +150,12 @@ class Node(metaclass=NodeMeta):
         else:
             return self._id
 
-    def value_str(self):
+    def value_str(self, pretty=False):
         if self.evaluated:
-            return repr(self.value)
+            if pretty:
+                return pp.pformat(self.value)
+            else:
+                return repr(self.value)
         else:
             return "unevaluated"
 

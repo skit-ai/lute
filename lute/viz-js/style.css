@@ -51,6 +51,7 @@ svg {
 #side-panel .desc {
   font-family: 'monospace';
   flex-wrap: wrap;
+  font-size: 12px;
 }
 
 #side-panel .header {

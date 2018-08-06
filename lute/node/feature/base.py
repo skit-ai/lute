@@ -2,6 +2,7 @@
 Basic feature extractors
 """
 
+import requests
 from pydash import py_
 
 from lute.node import Node
@@ -13,7 +14,7 @@ class NGrams(Node):
     """
 
     def __init__(self, ns=(1, 2)):
-        self.ns = (ns,) if type(ns) == int else ns
+        self.ns = (ns,) if isinstance(ns, int) else ns
 
     def __call__(self, tokenizer: Node, allowed_items: Node = None):
         if allowed_items is None:
@@ -47,3 +48,27 @@ class NGrams(Node):
             ngrams = py_.filter(ngrams, lambda ng: any([tk in self._allowed_items.value for tk in ng]))
 
         return ngrams
+
+
+class POSTagger(Node):
+    """
+    SyntaxNet node
+    """
+
+    def __init__(self, root_url: str, lang: str):
+        self.root_url = root_url
+        self.lang = lang
+
+    def __call__(self, text: Node):
+        self._register_predecessors([text])
+        self._text = text
+
+        return self
+
+    def eval(self):
+        req = requests.post(
+            self.root_url,
+            data={self._text.value.encode('utf-8')},
+            headers={"Content-Type": "text/plain"}
+        )
+        return req.json()

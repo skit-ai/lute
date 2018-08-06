@@ -1,3 +1,12 @@
+function simplifyName (nodeName) {
+  let brk = nodeName.indexOf('__')
+  if (brk > -1) {
+    return nodeName.slice(0, brk + 10) + '...'
+  } else {
+    return nodeName
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   let g = new dagreD3.graphlib.Graph().setGraph({})
 
@@ -18,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
       rx: 5,
       ry: 5,
       shape: 'rect',
-      label: node.name,
+      label: simplifyName(node.name),
       labelStyle: `fill: ${fg}`,
       style: `fill: ${bg}; stroke: ${fg}`,
       description: node.value

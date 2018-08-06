@@ -36,10 +36,11 @@ class NodeMeta(ABCMeta):
         if cls.__name__ != base_cls:
             original_init = cls.__init__
 
-            def __init__(self, *args, **kwargs):
+            def __init__(self, *args, name=None, **kwargs):
                 if base_cls in [c.__name__ for c in cls.__bases__]:
                     # Only auto call super for the direct children of base_cls
-                    super(cls, self).__init__(*args, **kwargs)
+                    super(cls, self).__init__(*args, name=name, **kwargs)
+
                 original_init(self, *args, **kwargs)
                 self._id = cls.__gen_id__()
 

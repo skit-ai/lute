@@ -17,6 +17,11 @@ svg {
   stroke: #333;
   fill: #fff;
   stroke-width: 1px;
+  cursor: pointer;
+}
+
+.node text {
+  cursor: pointer;
 }
 
 .edgePath path {

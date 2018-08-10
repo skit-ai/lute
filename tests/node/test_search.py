@@ -188,8 +188,8 @@ def test_list():
     g = Graph(x, e)
 
     assert g.run("Hello world") == []
-    assert g.run("hola planet venus") == [{ "type": "list", "value": "venus", "range": (12, 17) }]
-    assert g.run("What is a blue moon?") == [{ "type": "list", "value": "Blue moon", "range": (10, 19) }]
+    assert g.run("hola planet venus") == [{"type": "list", "value": "venus", "range": (12, 17)}]
+    assert g.run("What is a blue moon?") == [{"type": "list", "value": "Blue moon", "range": (10, 19)}]
 
 
 def test_list_regex():
@@ -201,83 +201,83 @@ def test_list_regex():
     fn = node_fn(ListSearch(terms))
 
     assert fn("Hello world, how art thou?") == []
-    assert fn("Hello - world, how art thou?") == [{ "type": "list", "value": terms[0], "range": (0, 13) }]
-    assert fn("what the f*ck!") == [{ "type": "list", "value": terms[1], "range": (9, 13) }]
+    assert fn("Hello - world, how art thou?") == [{"type": "list", "value": terms[0], "range": (0, 13)}]
+    assert fn("what the f*ck!") == [{"type": "list", "value": terms[1], "range": (9, 13)}]
 
 
 def test_constraints_partial():
     constraints = [
-        { "first": "moon", "second": "moon" },
-        { "second": "kek" },
-        { "first": "lol", "second": "kek" }
+        {"first": "moon", "second": "moon"},
+        {"second": "kek"},
+        {"first": "lol", "second": "kek"}
     ]
 
     x1 = Variable()
     x2 = Variable()
-    c = ConstraintSearch(constraints, partial=True)({ "first": x1, "second": x2 })
+    c = ConstraintSearch(constraints, partial=True)({"first": x1, "second": x2})
 
     g = Graph([x1, x2], c)
 
-    assert g.run(values_dict={ x1: [], x2: [] }) == []
-    assert g.run(values_dict={ x1: [], x2: [{ "type": "search_type", "value": "kek" }] }) == [
-        { "constraint": { "second": "kek" }, "missing": [] },
-        { "constraint": { "first": "lol", "second": "kek" }, "missing": ["first"] }
+    assert g.run(values_dict={x1: [], x2: []}) == []
+    assert g.run(values_dict={x1: [], x2: [{"type": "search_type", "value": "kek"}]}) == [
+        {"constraint": {"second": "kek"}, "missing": []},
+        {"constraint": {"first": "lol", "second": "kek"}, "missing": ["first"]}
     ]
-    assert g.run(values_dict={ x1: [{ "type": "search_type", "value": "moon" }],
-                               x2: [{ "type": "search_type", "value": "moon" },
-                                    { "type": "search_type", "value": "kek" }] }) == [
-        { "constraint": { "first": "moon", "second": "moon" }, "missing": [] },
-        { "constraint": { "second": "kek" }, "missing": [] },
-        { "constraint": { "first": "lol", "second": "kek" }, "missing": ["first"] }
-    ]
-    assert g.run(values_dict={ x1: [{ "type": "search_type", "value": "moon" }],
-                               x2: [{ "type": "search_type", "value": "kek" }] }) == [
-        { "constraint": { "first": "moon", "second": "moon" }, "missing": ["second"] },
-        { "constraint": { "second": "kek" }, "missing": [] },
-        { "constraint": { "first": "lol", "second": "kek" }, "missing": ["first"] }
-    ]
-    assert g.run(values_dict={ x1: [{ "type": "search_type", "value": "lol" }],
-                               x2: [{ "type": "search_type", "value": "kek" }] }) == [
-        { "constraint": { "second": "kek" }, "missing": [] },
-        { "constraint": { "first": "lol", "second": "kek" }, "missing": [] }
-    ]
-    assert g.run(values_dict={ x1: [{ "type": "search_type", "value": "lol" }],
-                               x2: [{ "type": "search_type", "value": "lel" }] }) == [
-        { "constraint": { "first": "lol", "second": "kek" }, "missing": ["second"] }
-    ]
+    assert g.run(values_dict={x1: [{"type": "search_type", "value": "moon"}],
+                              x2: [{"type": "search_type", "value": "moon"},
+                                   {"type": "search_type", "value": "kek"}]}) == [
+               {"constraint": {"first": "moon", "second": "moon"}, "missing": []},
+               {"constraint": {"second": "kek"}, "missing": []},
+               {"constraint": {"first": "lol", "second": "kek"}, "missing": ["first"]}
+           ]
+    assert g.run(values_dict={x1: [{"type": "search_type", "value": "moon"}],
+                              x2: [{"type": "search_type", "value": "kek"}]}) == [
+               {"constraint": {"first": "moon", "second": "moon"}, "missing": ["second"]},
+               {"constraint": {"second": "kek"}, "missing": []},
+               {"constraint": {"first": "lol", "second": "kek"}, "missing": ["first"]}
+           ]
+    assert g.run(values_dict={x1: [{"type": "search_type", "value": "lol"}],
+                              x2: [{"type": "search_type", "value": "kek"}]}) == [
+               {"constraint": {"second": "kek"}, "missing": []},
+               {"constraint": {"first": "lol", "second": "kek"}, "missing": []}
+           ]
+    assert g.run(values_dict={x1: [{"type": "search_type", "value": "lol"}],
+                              x2: [{"type": "search_type", "value": "lel"}]}) == [
+               {"constraint": {"first": "lol", "second": "kek"}, "missing": ["second"]}
+           ]
 
 
 def test_constraints_complete():
     constraints = [
-        { "first": "moon", "second": "moon" },
-        { "second": "kek" },
-        { "first": "lol", "second": "kek" }
+        {"first": "moon", "second": "moon"},
+        {"second": "kek"},
+        {"first": "lol", "second": "kek"}
     ]
 
     x1 = Variable()
     x2 = Variable()
-    c = ConstraintSearch(constraints, partial=False)({ "first": x1, "second": x2 })
+    c = ConstraintSearch(constraints, partial=False)({"first": x1, "second": x2})
 
     g = Graph([x1, x2], c)
 
-    assert g.run(values_dict={ x1: [], x2: [] }) == []
-    assert g.run(values_dict={ x1: [], x2: [{ "type": "search_type", "value": "kek" }] }) == [
-        { "constraint": { "second": "kek" }, "missing": [] },
+    assert g.run(values_dict={x1: [], x2: []}) == []
+    assert g.run(values_dict={x1: [], x2: [{"type": "search_type", "value": "kek"}]}) == [
+        {"constraint": {"second": "kek"}, "missing": []},
     ]
-    assert g.run(values_dict={ x1: [{ "type": "search_type", "value": "moon" }],
-                               x2: [{ "type": "search_type", "value": "moon" },
-                                    { "type": "search_type", "value": "kek" }] }) == [
-        { "constraint": { "first": "moon", "second": "moon" }, "missing": [] },
-        { "constraint": { "second": "kek" }, "missing": [] }
-    ]
-    assert g.run(values_dict={ x1: [{ "type": "search_type", "value": "moon" }],
-                               x2: [{ "type": "search_type", "value": "kek" }] }) == [
-        { "constraint": { "second": "kek" },"missing": [] }
-    ]
-    assert g.run(values_dict={ x1: [{ "type": "search_type", "value": "lol" }],
-                               x2: [{ "type": "search_type", "value": "kek" }] }) == [
-        { "constraint": { "second": "kek" }, "missing": [] },
-        { "constraint": { "first": "lol", "second": "kek" }, "missing": [] }
-    ]
-    assert g.run(values_dict={ x1: [{ "type": "search_type", "value": "lol" }],
-                               x2: [{ "type": "search_type", "value": "lel" }] }) == []
+    assert g.run(values_dict={x1: [{"type": "search_type", "value": "moon"}],
+                              x2: [{"type": "search_type", "value": "moon"},
+                                   {"type": "search_type", "value": "kek"}]}) == [
+               {"constraint": {"first": "moon", "second": "moon"}, "missing": []},
+               {"constraint": {"second": "kek"}, "missing": []}
+           ]
+    assert g.run(values_dict={x1: [{"type": "search_type", "value": "moon"}],
+                              x2: [{"type": "search_type", "value": "kek"}]}) == [
+               {"constraint": {"second": "kek"}, "missing": []}
+           ]
+    assert g.run(values_dict={x1: [{"type": "search_type", "value": "lol"}],
+                              x2: [{"type": "search_type", "value": "kek"}]}) == [
+               {"constraint": {"second": "kek"}, "missing": []},
+               {"constraint": {"first": "lol", "second": "kek"}, "missing": []}
+           ]
+    assert g.run(values_dict={x1: [{"type": "search_type", "value": "lol"}],
+                              x2: [{"type": "search_type", "value": "lel"}]}) == []

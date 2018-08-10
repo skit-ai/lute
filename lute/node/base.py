@@ -97,7 +97,7 @@ class Node(metaclass=NodeMeta):
         """
 
         # Guarding against cyclic traps
-        if self.evaluated == True:
+        if self.evaluated:
             self.evaluated = False
 
             # Free some memory too

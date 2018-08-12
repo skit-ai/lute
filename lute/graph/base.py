@@ -1,8 +1,9 @@
 from typing import Any, Dict, List, Union
 
+from pydash import py_
+
 from lute.node import Node, Variable
 from lute.node.utils import walk_node
-from pydash import py_
 
 GraphInput = Union[List[Node], Node]
 GraphOutput = Union[List[Node], Node]
@@ -14,8 +15,8 @@ class Graph:
     """
 
     def __init__(self, input: GraphInput, output: GraphOutput):
-        self.inputs = input if type(input) == list else [input]
-        self.outputs = output if type(output) == list else [output]
+        self.inputs = input if isinstance(input, list) else [input]
+        self.outputs = output if isinstance(output, list) else [output]
         self._nodes = self._all_nodes()
 
     def _all_nodes(self):
@@ -35,12 +36,15 @@ class Graph:
         for node in self._nodes:
             node.clear()
 
-    def run(self, input_values = [], values_dict: Dict[Variable, Any] = None):
+    def run(self, input_values=None, values_dict: Dict[Variable, Any] = None):
         """
         Run the values
         """
 
         self.clear()
+
+        if input_values is None:
+            input_values = []
 
         if values_dict is not None:
             for node in values_dict:

@@ -95,3 +95,5 @@ ENV/
 /pyproject.lock
 /lute/viz-js/data.json
 /lute/viz-js/data.js
+
+tests/data/test_io_write.txt

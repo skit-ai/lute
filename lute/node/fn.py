@@ -31,19 +31,21 @@ class NameTransformer(ast.NodeTransformer):
         else:
             return node
 
+
 class AssignTransformer(ast.NodeTransformer):
     """
     Add another assign statement to copy the value of the Variable into a local variable.
     Variable.id : local_variable.id is stored in visited_assigned_nodes
     """
+
     def __init__(self, input_ids, visited_assigned_nodes):
         super().__init__()
         self._input_ids = input_ids
         self.visited_assigned_nodes = visited_assigned_nodes
-        self.reverse_mapping = dict((v,k) for k, v in visited_assigned_nodes.items())
+        self.reverse_mapping = dict((v, k) for k, v in visited_assigned_nodes.items())
 
     def visit_Assign(self, node):
-        if(isinstance(node.targets[0], ast.Tuple)):
+        if isinstance(node.targets[0], ast.Tuple):
             target_nodes = node.targets[0].elts
         else:
             target_nodes = [node.targets[0]]
@@ -51,8 +53,8 @@ class AssignTransformer(ast.NodeTransformer):
         for name_node in target_nodes:
             if name_node.id in self.visited_assigned_nodes.values():
                 new_assign_node = ast.Assign(
-                    targets = [ast.Name(id=name_node.id, ctx=ast.Store())],
-                    value = ast.Call(
+                    targets=[ast.Name(id=name_node.id, ctx=ast.Store())],
+                    value=ast.Call(
                         func=ast.Name(id="getattr", ctx=ast.Load()),
                         args=[ast.Name(id=self.reverse_mapping[name_node.id], ctx=ast.Load()), ast.Str("value")],
                         keywords=[])
@@ -63,6 +65,7 @@ class AssignTransformer(ast.NodeTransformer):
         nodes_to_return.extend(new_assign_nodes)
         nodes_to_return.append(node)
         return nodes_to_return
+
 
 class ValueTransformer(ast.NodeTransformer):
     """
@@ -77,15 +80,16 @@ class ValueTransformer(ast.NodeTransformer):
     def visit_Name(self, node):
         if node.id in self._input_ids:
             # If the parent node is an Assign node, replace it with variable.value with Store() context
-            if(isinstance(node.parent, ast.Assign) or (isinstance(node.parent, ast.Tuple) and isinstance(node.parent.parent, ast.Assign))):
-                if(node.id not in self.visited_assigned_nodes.keys()):
+            if (isinstance(node.parent, ast.Assign) or (
+                    isinstance(node.parent, ast.Tuple) and isinstance(node.parent.parent, ast.Assign))):
+                if (node.id not in self.visited_assigned_nodes.keys()):
                     self.visited_assigned_nodes[node.id] = unique_name(node.id)
 
                 return ast.Name(id=self.visited_assigned_nodes[node.id], ctx=ast.Store())
 
             # If the parent node is not an assign node, replace it with getattr()
-            elif(not isinstance(node.parent, ast.Assign)):
-                if(node.id in self.visited_assigned_nodes.keys()):
+            elif (not isinstance(node.parent, ast.Assign)):
+                if (node.id in self.visited_assigned_nodes.keys()):
                     return ast.Name(id=self.visited_assigned_nodes[node.id], ctx=ast.Load())
 
                 return ast.Call(
@@ -95,6 +99,7 @@ class ValueTransformer(ast.NodeTransformer):
                 )
         else:
             return node
+
 
 def unique_name(root: str) -> str:
     return "{}__{}".format(root, str(uuid4()).replace("-", "_"))
@@ -116,7 +121,7 @@ def node_fn(*args, **kwargs):
     def _get_wrapper(inst):
         def _wrapper(*args, **kwargs):
             c_args = [Constant(v) for v in args]
-            c_kwargs = { k: Constant(kwargs[k]) for k in kwargs }
+            c_kwargs = {k: Constant(kwargs[k]) for k in kwargs}
             inst(*c_args, **c_kwargs)
             return inst.eval()
 

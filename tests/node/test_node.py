@@ -141,3 +141,18 @@ def test_node_func_interface():
     # The instance arguments takes precedence here
     assert node_fn("en")(Tokenizer("en"))(s) == tk_s
     assert node_fn(Tokenizer("en"))(s) == tk_s
+
+
+def test_fn_node_lambda():
+    try:
+        fn_node(lambda x: x + 1)
+        assert False
+    except Exception:
+        assert True
+
+    try:
+        a = lambda x: x
+        fn_node(a)
+        assert False
+    except Exception:
+        assert True

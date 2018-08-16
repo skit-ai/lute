@@ -9,6 +9,15 @@ from uuid import uuid4
 from lute.node.base import Constant, Node, NodeMeta
 
 
+def is_lambda(v) -> bool:
+    """
+    Check for lambda. From https://stackoverflow.com/a/3655857
+    """
+
+    LAMBDA = lambda: 0
+    return isinstance(v, type(LAMBDA)) and v.__name__ == LAMBDA.__name__
+
+
 class NameTransformer(ast.NodeTransformer):
     """
     Change the name of function (in definition)
@@ -144,6 +153,9 @@ def fn_node(fn) -> Node:
     """
     Convert the function to a node
     """
+
+    if is_lambda(fn):
+        raise Exception("lambdas are not supported as of now, please don't be lazy")
 
     name = fn.__name__
     global_namespace = fn.__globals__

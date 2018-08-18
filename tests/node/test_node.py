@@ -156,3 +156,15 @@ def test_fn_node_lambda():
         assert False
     except Exception:
         assert True
+
+
+def test_add():
+    n = Constant(34) + Constant(3)
+    assert n.value == 37
+    assert (Constant([1, 2, 3]) + Constant([4])).value == [1, 2, 3, 4]
+
+
+def test_iadd():
+    n = Constant(2)
+    n += Constant(20)
+    assert n.value == 22

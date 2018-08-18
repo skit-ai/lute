@@ -1,3 +1,4 @@
+import operator
 import pprint
 from abc import ABCMeta, abstractmethod
 from typing import Any
@@ -144,6 +145,12 @@ class Node(metaclass=NodeMeta):
         else:
             raise TypeError("Unknown right hand side encountered while piping")
 
+    def __add__(self, other):
+        if isinstance(other, Node):
+            return BinOp(operator.add)(self, other)
+        else:
+            raise TypeError("Unsupported right hand side")
+
     def name_str(self):
         if self.name is not None:
             return "{}-({})".format(self.name, self._id)
@@ -161,6 +168,26 @@ class Node(metaclass=NodeMeta):
 
     def __repr__(self):
         return "<{}: {}>".format(self.name_str(), self.value_str())
+
+
+class BinOp(Node):
+    """
+    A binary operation node
+    """
+
+    def __init__(self, op):
+        self.op = op
+
+    def __call__(self, a: Node, b: Node):
+        self._register_predecessors([a, b])
+
+        self.a = a
+        self.b = b
+
+        return self
+
+    def eval(self):
+        return self.op(self.a.value, self.b.value)
 
 
 class Constant(Node):

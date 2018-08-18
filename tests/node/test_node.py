@@ -31,7 +31,7 @@ def test_names():
 
 
 def what_func(a, b, c):
-    a = b+c
+    a = b + c
     return a
 
 
@@ -40,12 +40,12 @@ def which_func(a):
     return a
 
 
-def some_add_func(a , b):
-    return (a+1, b+1)
+def some_add_func(a, b):
+    return (a + 1, b + 1)
 
 
 def what_what_func(a, b, c):
-    a, b = some_add_func(a,b)
+    a, b = some_add_func(a, b)
     return (a, b, c)
 
 
@@ -54,11 +54,11 @@ def test_multiple_assignments():
     y = Variable()
     z = Variable()
     func_node = fn_node(what_what_func)()(x, y, z)
-    g = Graph([x,y,z], func_node)
+    g = Graph([x, y, z], func_node)
     a, b, c = g.run(values_dict={
-        x : 1,
-        y : 2,
-        z : 3
+        x: 1,
+        y: 2,
+        z: 3
     })
     assert a == 2
     assert b == 3
@@ -86,8 +86,7 @@ def test_conditional_call():
     a.value = 22
 
     N = fn_node(conditional_func)()
-
-    out = N(a, b)
+    N(a, b)
 
     # Don't set anything here
     # Since branch for b won't run, updation of b should not throw error
@@ -115,17 +114,13 @@ def test_func_node():
     y = Variable()
     z = Variable()
     func_node = fn_node(what_func)()(x, y, z)
-    g = Graph([x,y,z], func_node)
+    g = Graph([x, y, z], func_node)
     result = g.run(values_dict={
-        x : 1,
-        y : 2,
-        z : 3
+        x: 1,
+        y: 2,
+        z: 3
     })
     assert(result == 5)
-
-
-def test_node_func():
-    x = Variable()
 
 
 def test_node_func_interface():

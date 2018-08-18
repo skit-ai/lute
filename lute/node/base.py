@@ -245,3 +245,20 @@ class Identity(Node):
         self._source_node = other
 
         return self
+
+
+class GraphNode(Node):
+
+    def __init__(self, g):
+        self.g = g
+
+    def __call__(self, *args):
+        self._register_predecessors(list(args))
+        self.args = args
+        return self
+
+    def eval(self):
+        if len(self.args) == 1:
+            return self.g.run(self.args[0].value)
+        else:
+            return self.g.run([a.value for a in self.args])

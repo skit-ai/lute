@@ -1,1 +1,1 @@
-from .base import Node, Constant, Variable, Identity
+from .base import Constant, GraphNode, Identity, Node, Variable

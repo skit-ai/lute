@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Union
 
 from pydash import py_
 
-from lute.node import Node, Variable
+from lute.node import GraphNode, Node, Variable
 from lute.node.utils import walk_node
 
 GraphInput = Union[List[Node], Node]
@@ -64,3 +64,7 @@ class Graph:
         results = [output.value for output in self.outputs]
 
         return results[0] if len(results) == 1 else results
+
+
+def graph_node(g: Graph) -> Node:
+    return GraphNode(g)

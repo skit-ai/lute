@@ -2,7 +2,7 @@
 Tests for graphs
 """
 
-from lute.graph import Graph
+from lute.graph import Graph, graph_node
 from lute.node import Constant, Identity, Variable
 
 
@@ -37,3 +37,20 @@ def test_run_var():
     g = Graph([a, v], [a, Identity()(v)])
 
     assert g.run(values_dict={ v: "world" }) == ["hello", "world"]
+
+
+def test_graph_node():
+    """
+    Test if a graph node is behaving as expected
+    """
+
+    x = Variable()
+    y = Constant(2)
+
+    g = Graph(x, [x + y, y])
+    gn = graph_node(g)
+
+    c = Constant(3)
+    sg = Graph(c, gn(c))
+
+    assert sg.run() == [5, 2]

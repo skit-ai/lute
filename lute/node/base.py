@@ -178,6 +178,13 @@ class BinOp(Node):
     def __init__(self, op):
         self.op = op
 
+    def name_str(self):
+        suffix = str(self.op)
+        if self.name is not None:
+            return "{}-({})-({})".format(self.name, suffix, self._id)
+        else:
+            return "{}-({})".format(suffix, self._id)
+
     def __call__(self, a: Node, b: Node):
         self._register_predecessors([a, b])
 

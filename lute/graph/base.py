@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Tuple, Union
 
 from pydash import py_
 
@@ -7,6 +7,9 @@ from lute.node.utils import walk_node
 
 GraphInput = Union[List[Node], Node]
 GraphOutput = Union[List[Node], Node]
+
+# TODO: Should support node `name` for the namespacing also
+Param = Tuple[Node, str]
 
 
 class Graph:
@@ -18,6 +21,7 @@ class Graph:
         self.inputs = input if isinstance(input, list) else [input]
         self.outputs = output if isinstance(output, list) else [output]
         self._nodes = self._all_nodes()
+        self._nodes_map = {n.name_str(): n for n in self._nodes}
 
     def _all_nodes(self):
         return py_.uniq(self._forward_nodes() + self._backward_nodes())
@@ -27,6 +31,20 @@ class Graph:
 
     def _backward_nodes(self):
         return py_.uniq(py_.flatten([walk_node(n, backward=True) for n in self.outputs]))
+
+    def set_param(self, param: Union[Param, str], value: Any):
+        n, attr = self._resolve_param_node(param)
+        setattr(n, attr, value)
+
+    def _resolve_param_node(self, param: Union[Param, str]) -> Tuple[Node, str]:
+        if isinstance(param, str):
+            valid_nodes = [n for n in self._nodes if hasattr(n, param)]
+            if len(valid_nodes) == 1:
+                return valid_nodes[0], param
+            else:
+                raise Exception("Unable to resolve param target")
+        else:
+            return self._nodes_map[param[0].name_str()], param[1]
 
     def clear(self):
         """

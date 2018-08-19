@@ -20,7 +20,7 @@ class Graph:
         self._nodes = self._all_nodes()
 
     def _all_nodes(self):
-        return self._forward_nodes() + self._backward_nodes()
+        return py_.uniq(self._forward_nodes() + self._backward_nodes())
 
     def _forward_nodes(self):
         return py_.uniq(py_.flatten([walk_node(n) for n in self.inputs]))

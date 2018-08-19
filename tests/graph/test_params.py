@@ -3,12 +3,12 @@ Tests for working with parameters
 """
 
 from lute.graph import Graph
-from lute.node import Constant, Identity, Node
+from lute.node import Constant, Node
 
 
 class TunaNode(Node):
     """
-    A simple node with tunable pa rams
+    A simple node with tunable param
     """
 
     def __init__(self, alpha=10):

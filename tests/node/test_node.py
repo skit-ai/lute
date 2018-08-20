@@ -168,6 +168,13 @@ def test_fn_conditional():
     assert fn_node(fn_conditional)()(Constant(1), Constant(3)).value == 4
 
 
+def test_fn_indent():
+    def lol(x):
+        return x + 1
+
+    assert fn_node(lol)()(Constant(1)).value == 2
+
+
 def test_add():
     n = Constant(34) + Constant(3)
     assert n.value == 37

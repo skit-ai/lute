@@ -4,6 +4,7 @@ Function to node transformer
 
 import ast
 import inspect
+from textwrap import dedent
 from uuid import uuid4
 
 from lute.node.base import Constant, Node, NodeMeta
@@ -181,7 +182,7 @@ def fn_node(fn) -> Node:
     new_name = unique_name(name)
 
     # Patch function
-    tree = ast.parse(inspect.getsource(fn))
+    tree = ast.parse(dedent(inspect.getsource(fn)))
 
     # Create a pointer to the parent node in the tree
     for node in ast.walk(tree):

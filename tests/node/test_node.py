@@ -156,6 +156,18 @@ def test_fn_node_lambda():
         assert True
 
 
+def fn_conditional(x, y):
+    if y > 1:
+        x = x + 1
+    x = x + 2
+    return x
+
+
+def test_fn_conditional():
+    assert fn_node(fn_conditional)()(Constant(1), Constant(1)).value == 3
+    assert fn_node(fn_conditional)()(Constant(1), Constant(3)).value == 4
+
+
 def test_add():
     n = Constant(34) + Constant(3)
     assert n.value == 37

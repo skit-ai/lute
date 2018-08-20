@@ -63,10 +63,25 @@ class AssignTransformer(ast.NodeTransformer):
             if name_node.id in self.visited_assigned_nodes.values():
                 new_assign_node = ast.Assign(
                     targets=[ast.Name(id=name_node.id, ctx=ast.Store())],
-                    value=ast.Call(
-                        func=ast.Name(id="getattr", ctx=ast.Load()),
-                        args=[ast.Name(id=self.reverse_mapping[name_node.id], ctx=ast.Load()), ast.Str("value")],
-                        keywords=[])
+                    value=ast.IfExp(
+                        test=ast.Call(
+                            func=ast.Name(id="isinstance", ctx=ast.Load()),
+                            args=[
+                                ast.Name(id=self.reverse_mapping[name_node.id], ctx=ast.Load()),
+                                ast.Name(id="Node", ctx=ast.Load()),
+                            ],
+                            keywords=[],
+                        ),
+                        body=ast.Call(
+                            func=ast.Name(id="getattr", ctx=ast.Load()),
+                            args=[
+                                ast.Name(id=self.reverse_mapping[name_node.id], ctx=ast.Load()),
+                                ast.Str(s="value"),
+                            ],
+                            keywords=[],
+                        ),
+                        orelse=ast.Name(id=self.reverse_mapping[name_node.id], ctx=ast.Load()),
+                    )
                 )
                 new_assign_nodes.append(new_assign_node)
 
@@ -159,6 +174,7 @@ def fn_node(fn) -> Node:
 
     name = fn.__name__
     global_namespace = fn.__globals__
+    global_namespace["Node"] = Node
     args = inspect.getfullargspec(fn).args
 
     # Assign new name to avoid collision

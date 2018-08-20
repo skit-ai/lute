@@ -92,7 +92,7 @@ class ValueTransformer(ast.NodeTransformer):
             if (isinstance(node.parent, ast.Assign) or (
                     isinstance(node.parent, ast.Tuple) and isinstance(node.parent.parent, ast.Assign))):
                 if (node.id not in self.visited_assigned_nodes.keys()):
-                    self.visited_assigned_nodes[node.id] = unique_name(node.id)
+                    self.visited_assigned_nodes[node.id] = node.id
 
                 return ast.Name(id=self.visited_assigned_nodes[node.id], ctx=ast.Store())
 

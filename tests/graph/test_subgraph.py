@@ -1,5 +1,5 @@
 from lute.graph import Graph
-from lute.node import Constant, Identity, Variable
+from lute.node import Constant, Variable
 
 
 def test_basic():

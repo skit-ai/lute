@@ -3,13 +3,13 @@ from typing import Any, Dict, List, Tuple, Union
 from pydash import py_
 
 from lute.node import GraphNode, Node, Variable
-from lute.node.utils import walk_node
+from lute.node.utils import resolve, walk_node
 
 GraphInput = Union[List[Node], Node]
 GraphOutput = Union[List[Node], Node]
 
-# TODO: Should support node `name` for the namespacing also
-Param = Tuple[Node, str]
+NodeId = Union[Node, str]
+Param = Union[Tuple[NodeId, str], str]
 
 
 class Graph:
@@ -24,7 +24,7 @@ class Graph:
         self._nodes_map = {n.name_str(): n for n in self._nodes}
 
     def _all_nodes(self):
-        return py_.uniq(self._forward_nodes() + self._backward_nodes())
+        return py_.uniq(self._forward_nodes() + self._backward_nodes() + self.inputs + self.outputs)
 
     def _forward_nodes(self):
         return py_.uniq(py_.flatten([walk_node(n) for n in self.inputs]))
@@ -45,6 +45,26 @@ class Graph:
                 raise Exception("Unable to resolve param target")
         else:
             return self._nodes_map[param[0].name_str()], param[1]
+
+    def _resolve_node(self, i: NodeId):
+        return resolve(i, self._nodes)
+
+    def subgraph(self, inputs: List[NodeId] = None, outputs: List[NodeId] = None):
+        """
+        Return a sub graph based on the io node identifiers
+        """
+
+        if inputs is None:
+            inputs = self.inputs
+        else:
+            inputs = [self._resolve_node(i) for i in inputs]
+
+        if outputs is None:
+            outputs = self.outputs
+        else:
+            outputs = [self._resolve_node(o) for o in outputs]
+
+        return Graph(inputs, outputs)
 
     def clear(self):
         """

@@ -1,6 +1,7 @@
 import operator
 import pprint
 from abc import ABCMeta, abstractmethod
+from copy import deepcopy
 from typing import Any
 
 pp = pprint.PrettyPrinter(indent=2, width=50)
@@ -118,11 +119,11 @@ class Node(metaclass=NodeMeta):
     def __call__(self, *args, **kwargs):
         ...
 
+    def clone(self):
+        return deepcopy(self)
+
     def __str__(self):
         return self._id
-
-    def __eq__(self, other):
-        return other._id == self._id
 
     def __hash__(self):
         return hash(self._id)

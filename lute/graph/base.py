@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Any, Dict, List, Tuple, Union
 
 from pydash import py_
@@ -46,7 +47,7 @@ class Graph:
         else:
             return self._nodes_map[param[0].name_str()], param[1]
 
-    def _resolve_node(self, i: NodeId):
+    def resolve_node(self, i: NodeId):
         return resolve(i, self._nodes)
 
     def subgraph(self, inputs: List[NodeId] = None, outputs: List[NodeId] = None):
@@ -57,14 +58,17 @@ class Graph:
         if inputs is None:
             inputs = self.inputs
         else:
-            inputs = [self._resolve_node(i) for i in inputs]
+            inputs = [self.resolve_node(i) for i in inputs]
 
         if outputs is None:
             outputs = self.outputs
         else:
-            outputs = [self._resolve_node(o) for o in outputs]
+            outputs = [self.resolve_node(o) for o in outputs]
 
         return Graph(inputs, outputs)
+
+    def clone(self):
+        return deepcopy(self)
 
     def clear(self):
         """

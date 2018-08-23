@@ -185,3 +185,11 @@ def test_iadd():
     n = Constant(2)
     n += Constant(20)
     assert n.value == 22
+
+
+def test_clone():
+    a = Constant(22)
+    b = a.clone()
+
+    assert b.value == 22
+    assert not a.evaluated

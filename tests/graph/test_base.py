@@ -54,3 +54,17 @@ def test_graph_node():
     sg = Graph(c, gn(c))
 
     assert sg.run() == [5, 2]
+
+
+def test_clone():
+    x = Variable()
+    y = Constant(2)
+
+    g = Graph(x, [x + y, y])
+    gc = g.clone()
+
+    assert gc.run(33) == [35, 2]
+    assert not x.evaluated
+    assert g.run(10) == [12, 2]
+    assert [n.value for n in gc.outputs] == [35, 2]
+    assert [n.value for n in g.outputs] == [12, 2]

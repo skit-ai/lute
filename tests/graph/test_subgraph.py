@@ -1,5 +1,9 @@
+import pytest
+
 from lute.graph import Graph
-from lute.node import Constant, Variable
+from lute.node import Constant, Identity, Variable
+from lute.node.fn import fn_node
+from lute.node.utils import mute
 
 
 def test_basic():
@@ -15,3 +19,34 @@ def test_basic():
 
     assert g.run(2) == 35
     assert sg.run(2) == 33
+
+
+def test_mute():
+    a = Variable()
+
+    def add_one(x):
+        return x + 1
+
+    b = fn_node(add_one)()(a)
+    g = Graph(a, Identity()(b))
+
+    assert g.run(3) == 4
+    mute(b)
+    assert g.run(3) == 3
+    assert b.value == a.value
+
+
+def test_mute_fail():
+    a = Variable()
+    b = Constant(2)
+
+    def add(x, y):
+        return x + y
+
+    c = fn_node(add)()(a, b)
+    g = Graph([a, b], c)
+
+    assert g.run(1) == 3
+
+    with pytest.raises(RuntimeError):
+        mute(c)

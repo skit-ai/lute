@@ -45,6 +45,20 @@ def resolve(i: NodeId, nodes: List[Node]) -> Node:
         raise Exception("Unknown node if type")
 
 
+def mute(node: Node):
+    """
+    Make a node work as identity transformer
+    """
+
+    if len(node.predecessors) == 0:
+        return
+    elif len(node.predecessors) == 1:
+        node.eval = lambda: node.predecessors[0].value
+        node.muted = True
+    if len(node.predecessors) > 1:
+        raise RuntimeError("Cannot mute node with >1 fan-in")
+
+
 def walk_node(node: Node, backward=False) -> List[Node]:
     """
     Walk on the node and return a list of accessible nodes

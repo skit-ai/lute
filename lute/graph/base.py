@@ -60,6 +60,15 @@ class Graph:
         else:
             inputs = [self.resolve_node(i) for i in inputs]
 
+        # Patch inputs to be 0 fan-in type
+        real_inputs = []
+        for n in inputs:
+            if len(n.predecessors) > 0:
+                for succ in n.successors:
+                    succ.predecessors.remove(n)
+            else:
+                real_inputs.append(n)
+
         if outputs is None:
             outputs = self.outputs
         else:

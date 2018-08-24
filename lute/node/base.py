@@ -267,7 +267,4 @@ class GraphNode(Node):
         return self
 
     def eval(self):
-        if len(self.args) == 1:
-            return self.g.run(self.args[0].value)
-        else:
-            return self.g.run([a.value for a in self.args])
+        return self.g.run(*[a.value for a in self.args])

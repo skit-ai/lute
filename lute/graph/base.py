@@ -101,30 +101,25 @@ class Graph:
         for node in self._nodes:
             node.clear()
 
-    def run(self, input_values=None, values_dict: Dict[Variable, Any] = None):
+    def run(self, *args, values_dict: Dict[Variable, Any] = None):
         """
         Run the values
         """
 
         self.clear()
 
-        if input_values is None:
-            input_values = []
-
         if values_dict is not None:
+            # Dictionary assignment takes priority
             for node in values_dict:
                 if isinstance(node, Variable) and node in self.inputs:
                     node.value = values_dict[node]
         else:
             valid_inputs = [node for node in self.inputs if isinstance(node, Variable)]
-            if len(valid_inputs) == 1:
-                valid_inputs[0].value = input_values
+            if len(valid_inputs) == len(args):
+                for node, val in zip(valid_inputs, args):
+                    node.value = val
             else:
-                if len(valid_inputs) == len(input_values):
-                    for node, val in zip(valid_inputs, input_values):
-                        node.value = val
-                else:
-                    raise Exception("Input values length not matching length of graph inputs")
+                raise Exception("Input values length not matching length of graph inputs")
 
         results = [output.value for output in self.outputs]
 

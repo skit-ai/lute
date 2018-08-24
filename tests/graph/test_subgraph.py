@@ -81,7 +81,7 @@ def test_subgraph_input():
     assert sg.run(1) == 8
 
     sg = g.clone().subgraph(["a", "b"], ["y"])
-    assert sg.run([11, 23]) == 68
+    assert sg.run(11, 23) == 68
 
     sg = g.clone().subgraph(["p", "q", "r"], ["y"])
-    assert sg.run([1, 2, 3]) == 6
+    assert sg.run(1, 2, 3) == 6

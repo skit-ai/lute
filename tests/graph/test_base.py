@@ -20,7 +20,7 @@ def test_input_interface():
 
     g = Graph([a, b], a >> Identity())
 
-    assert g.run([1, 2]) == 1
+    assert g.run(1, 2) == 1
     assert g.run(values_dict={a: 1, b: 2}) == 1
 
     g = Graph([a], a >> Identity())
@@ -36,7 +36,7 @@ def test_run_var():
 
     g = Graph([a, v], [a, Identity()(v)])
 
-    assert g.run(values_dict={ v: "world" }) == ["hello", "world"]
+    assert g.run(values_dict={v: "world"}) == ["hello", "world"]
 
 
 def test_graph_node():

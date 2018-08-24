@@ -115,6 +115,14 @@ class Node(metaclass=NodeMeta):
             if self not in pred.successors:
                 pred.successors.append(self)
 
+    @property
+    def fan_in(self):
+        return len(self.predecessors)
+
+    @property
+    def fan_out(self):
+        return len(self.successors)
+
     @abstractmethod
     def __call__(self, *args, **kwargs):
         ...

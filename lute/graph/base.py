@@ -1,3 +1,4 @@
+import warnings
 from copy import deepcopy
 from typing import Any, Dict, List, Tuple, Union
 
@@ -61,20 +62,33 @@ class Graph:
             inputs = [self.resolve_node(i) for i in inputs]
 
         # Patch inputs to be 0 fan-in type
-        real_inputs = []
+        valid_inputs = []
         for n in inputs:
-            if len(n.predecessors) > 0:
+            if n.fan_in > 0:
+                # Patch all the successors to connect a new input node
+                n_p = Variable(name=n.name)
+
+                warnings.warn("""
+                Rewiring a node works on certain assumptions. The critical one right now is that
+                all arguments in __call__ go directly in predecessors registration. If this is not the
+                case, we will fail or the behavior will be undefined. There is a 'right' way to do
+                this and we will be doing that some time.
+                """)
+
                 for succ in n.successors:
-                    succ.predecessors.remove(n)
+                    args = succ.predecessors
+                    args[args.index(n)] = n_p
+                    succ(*args)
+                valid_inputs.append(n_p)
             else:
-                real_inputs.append(n)
+                valid_inputs.append(n)
 
         if outputs is None:
             outputs = self.outputs
         else:
             outputs = [self.resolve_node(o) for o in outputs]
 
-        return Graph(inputs, outputs)
+        return Graph(valid_inputs, outputs)
 
     def clone(self):
         return deepcopy(self)

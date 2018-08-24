@@ -15,7 +15,7 @@ def test_basic():
 
     g = Graph(x, c + x)
 
-    sg = g.subgraph(outputs=["stuff"])
+    sg = g.subgraph(output=["stuff"])
 
     assert g.run(2) == 35
     assert sg.run(2) == 33

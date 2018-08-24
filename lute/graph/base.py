@@ -13,6 +13,9 @@ GraphOutput = Union[List[Node], Node]
 NodeId = Union[Node, str]
 Param = Union[Tuple[NodeId, str], str]
 
+GraphIdInput = Union[List[NodeId], NodeId]
+GraphIdOutput = Union[List[NodeId], NodeId]
+
 
 class Graph:
     """
@@ -51,14 +54,15 @@ class Graph:
     def resolve_node(self, i: NodeId):
         return resolve(i, self._nodes)
 
-    def subgraph(self, inputs: List[NodeId] = None, outputs: List[NodeId] = None):
+    def subgraph(self, input: GraphIdInput = None, output: GraphIdOutput = None):
         """
         Return a sub graph based on the io node identifiers
         """
 
-        if inputs is None:
+        if input is None:
             inputs = self.inputs
         else:
+            inputs = input if isinstance(input, list) else [input]
             inputs = [self.resolve_node(i) for i in inputs]
 
         # Patch inputs to be 0 fan-in type
@@ -83,9 +87,10 @@ class Graph:
             else:
                 valid_inputs.append(n)
 
-        if outputs is None:
+        if output is None:
             outputs = self.outputs
         else:
+            outputs = output if isinstance(output, list) else [output]
             outputs = [self.resolve_node(o) for o in outputs]
 
         return Graph(valid_inputs, outputs)

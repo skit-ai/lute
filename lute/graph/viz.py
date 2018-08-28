@@ -63,4 +63,4 @@ def plot_graph(g: Graph, open_browser=True):
         fp.write("let data = {}".format(json.dumps(generate_dagre_data(g))))
 
     if open_browser:
-        webbrowser.open(os.path.join(serve_dir, "index.html"))
+        webbrowser.open("file://" + os.path.join(serve_dir, "index.html"))

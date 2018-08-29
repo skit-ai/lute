@@ -123,6 +123,9 @@ class Graph:
             if len(valid_inputs) == len(args):
                 for node, val in zip(valid_inputs, args):
                     node.value = val
+            elif len(args) == 1 and len(args[0]) == len(valid_inputs):
+                for node, val in zip(valid_inputs, args[0]):
+                    node.value = val
             else:
                 raise Exception("Input values length not matching length of graph inputs")
 

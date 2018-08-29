@@ -29,6 +29,9 @@ def test_input_interface():
     g = Graph(a, a >> Identity())
     assert g.run([1, 2]) == [1, 2]
 
+    g = Graph([a, b], a + b)
+    assert g.run([1, 2]) == 3
+
 
 def test_run_var():
     a = Constant("hello")

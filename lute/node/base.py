@@ -63,7 +63,6 @@ class Node(metaclass=NodeMeta):
     """
     _count = -1
 
-    @abstractmethod
     def __init__(self, *args, **kwargs):
         self._id = None
         self._output_val = None
@@ -123,9 +122,10 @@ class Node(metaclass=NodeMeta):
     def fan_out(self):
         return len(self.successors)
 
-    @abstractmethod
-    def __call__(self, *args, **kwargs):
-        ...
+    def __call__(self, *args):
+        self._register_predecessors(list(args))
+        self.args = args
+        return self
 
     def clone(self):
         return deepcopy(self)
@@ -194,16 +194,8 @@ class BinOp(Node):
         else:
             return "{}-({})".format(suffix, self._id)
 
-    def __call__(self, a: Node, b: Node):
-        self._register_predecessors([a, b])
-
-        self.a = a
-        self.b = b
-
-        return self
-
     def eval(self):
-        return self.op(self.a.value, self.b.value)
+        return self.op(self.args[0].value, self.args[1].value)
 
 
 class Constant(Node):
@@ -224,9 +216,6 @@ class Constant(Node):
 
 class Variable(Node):
 
-    def __init__(self):
-        pass
-
     def eval(self):
         return self._output_val
 
@@ -243,28 +232,14 @@ class Identity(Node):
     Passes on the value of input
     """
 
-    def __init__(self):
-        pass
-
     def eval(self):
-        return self._source_node.value
-
-    def __call__(self, other: Node):
-        self._register_predecessors([other])
-        self._source_node = other
-
-        return self
+        return self.args[0].value
 
 
 class GraphNode(Node):
 
     def __init__(self, g):
         self.g = g
-
-    def __call__(self, *args):
-        self._register_predecessors(list(args))
-        self.args = args
-        return self
 
     def eval(self):
         return self.g.run(*[a.value for a in self.args])

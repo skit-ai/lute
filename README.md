@@ -90,6 +90,9 @@ class Frequency(Node):
         # inheriting from the main Node class.
         # But, if you are inheriting from a class which is below
         # Node, you will need to call super.
+
+        # This is also optional to implement and is only needed
+        # if you need to set a few configuration params
         pass
 
     def __call__(self, token_node):
@@ -107,6 +110,9 @@ class Frequency(Node):
         # Return ourself so that calls can be chained
         return self
 
+        # If you don't implement this, a default implementation
+        # Takes over and saves the args `self.args` and `self.kwargs`
+
     def eval(self):
         # This is the main function which actually does the
         # computation. We now use the saved node's value.
@@ -121,21 +127,17 @@ token frequency and audio data and tells us sentiment information.
 
 
 class SentimentAPI(Node):
+    """
+    Sentiment node, takes frequencies and audio.
+    """
 
     def __init__(self, api_url):
         self.api_url = api_url
 
-    def __call__(self, freq_node, aud_node):
-        self._register_predecessors([freq_node, aud_node])
-        self._freq_node = freq_node
-        self._aud_node = aud_node
-
-        return self
-
     def eval(self):
         req = requests.post(self.api_url, data={
-            "audio": self._aud_node.value,
-            "counts": dict(self._freq_node.value)
+            "audio": self.args[0].value,
+            "counts": dict(self.args[1].value)
         })
 
         return req.json()

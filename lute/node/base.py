@@ -122,9 +122,15 @@ class Node(metaclass=NodeMeta):
     def fan_out(self):
         return len(self.successors)
 
-    def __call__(self, *args):
-        self._register_predecessors(list(args))
+    def __call__(self, *args, **kwargs):
+        """
+        Default implementation of call, assumes nodes everywhere
+        """
+        inputs = list(args) + list(kwargs.values())
+        self._register_predecessors([ip for ip in inputs if isinstance(ip, Node)])
         self.args = args
+        self.kwargs = kwargs
+
         return self
 
     def clone(self):

@@ -59,7 +59,6 @@ and input nodes are in black):
 g.run(values_dict={ text: "Whats up people!" })
 
 # You can also just pass the values directly as positional arguments
-# If there are multiple variables, we expect a list-ish input
 g.run("Whats up people!")
 
 # This might return something like

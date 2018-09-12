@@ -95,29 +95,11 @@ class Frequency(Node):
         # if you need to set a few configuration params
         pass
 
-    def __call__(self, token_node):
-        # This is for chaining
-
-        # First we need to register this connection
-        self._register_predecessors([token_node])
-        # Registration takes a list of nodes on which we call
-        # this particular node
-
-        # Save this node for computation later
-        # Variable name doesn't matter
-        self._token_node = token_node
-
-        # Return ourself so that calls can be chained
-        return self
-
-        # If you don't implement this, a default implementation
-        # Takes over and saves the args `self.args` and `self.kwargs`
-
-    def eval(self):
+    def eval(self, token_node):
         # This is the main function which actually does the
-        # computation. We now use the saved node's value.
+        # computation.
 
-        return Counter(self._token_node.value)
+        return Counter(token_node.value)
 ```
 
 As another example, lets create another node that does an api request using
@@ -134,10 +116,10 @@ class SentimentAPI(Node):
     def __init__(self, api_url):
         self.api_url = api_url
 
-    def eval(self):
+    def eval(self, audio_node, counts_node):
         req = requests.post(self.api_url, data={
-            "audio": self.args[0].value,
-            "counts": dict(self.args[1].value)
+            "audio": audio_node.value,
+            "counts": dict(counts_node.value)
         })
 
         return req.json()
@@ -255,4 +237,15 @@ num >> \
 Identity() * Identity() >> \ # We have (10, 10) here
 BinMult() * BinAdd() >> \     # The last tuple goes in both ops, giving (100, 20)
 BinAdd()                     # Finally we get 120
+```
+
+### Visualizer
+
+For creating visualizer like in the readme above, you can use the `plot_graph`
+function like the following:
+
+```python
+from lute.graph.viz import plot_graph
+
+plot_graph(g)
 ```

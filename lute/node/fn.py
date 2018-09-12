@@ -147,8 +147,9 @@ def node_fn(*args, **kwargs):
         def _wrapper(*args, **kwargs):
             c_args = [Constant(v) for v in args]
             c_kwargs = {k: Constant(kwargs[k]) for k in kwargs}
+            inst.clear()
             inst(*c_args, **c_kwargs)
-            return inst.eval()
+            return inst.value
 
         return _wrapper
 
@@ -196,16 +197,7 @@ def fn_node(fn) -> Node:
     ast.fix_missing_locations(tree)
     exec(compile(tree, filename="<ast>", mode="exec"), global_namespace)
 
-    def __init__(self):
-        pass
+    def eval(self, *args):
+        return global_namespace[new_name](*args)
 
-    def __call__(self, *args):
-        self._register_predecessors(list(args))
-        self._input = args
-        return self
-
-    return NodeMeta(unique_name(name), (Node,), {
-        "__init__": __init__,
-        "__call__": __call__,
-        "eval": lambda self: global_namespace[new_name](*self._input)
-    })
+    return NodeMeta(unique_name(name), (Node,), {"eval": eval})

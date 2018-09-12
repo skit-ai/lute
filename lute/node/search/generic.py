@@ -53,16 +53,10 @@ class ExpansionSearch(Node):
         for term in self.terms:
             self.re_patterns[term] = re.compile(r"\b" + r"\b|\b".join(self.exp[term]) + r"\b", re.I | re.UNICODE)
 
-    def __call__(self, other: Node):
-        self._register_predecessors([other])
-        self._text_node = other
+    def _get_matches(self, term: str, text) -> List[Any]:
+        return list(self.re_patterns[term].finditer(text))
 
-        return self
-
-    def _get_matches(self, term: str) -> List[Any]:
-        return list(self.re_patterns[term].finditer(self._text_node.value))
-
-    def eval(self):
+    def eval(self, text: Node):
         """
         Search for terms based on expansions
         NOTE: This assume antagonized strings
@@ -70,7 +64,7 @@ class ExpansionSearch(Node):
 
         results = []
         for term in self.terms:
-            matches = self._get_matches(term)
+            matches = self._get_matches(term, text.value)
             results.extend([{
                 "type": self.search_type,
                 "value": term,
@@ -89,6 +83,9 @@ class ListSearch(ExpansionSearch):
         super().__init__(terms, self._generate_expansions(terms), lang=lang, regex=False)
         self.search_type = "list"
 
+    def eval(self, text: Node):
+        return super().eval(text)
+
     def _generate_expansions(self, terms):
         return {k: [k] for k in terms}
 
@@ -101,14 +98,7 @@ class Canonicalize(Node):
     def __init__(self, remove_duplicates=False):
         self.remove_duplicates = remove_duplicates
 
-    def __call__(self, text: Node, search_results: Node):
-        self._register_predecessors([text, search_results])
-        self._text_node = text
-        self._search_results = search_results
-
-        return self
-
-    def _filter_searches(self):
+    def _filter_searches(self, searches):
         """
         In case of overlaps, keep the larger result
         """
@@ -117,7 +107,7 @@ class Canonicalize(Node):
             first, second = (res1, res2) if res1["range"][0] < res2["range"][0] else (res2, res1)
             return first["range"][1] >= second["range"][0]
 
-        ordered = sorted(self._search_results.value, key=lambda res: res["range"][1] - res["range"][0], reverse=True)
+        ordered = sorted(searches, key=lambda res: res["range"][1] - res["range"][0], reverse=True)
 
         filtered = []
         matched = set()
@@ -134,9 +124,9 @@ class Canonicalize(Node):
 
         return sorted(filtered, key=lambda res: res["range"][0])
 
-    def _mutate(self, searches):
+    def _mutate(self, text, searches):
         offset = 0
-        text = list(self._text_node.value)
+        text = list(text)
         for search in searches:
             rng = search["range"]
             replacement = list(search["value"])
@@ -145,5 +135,6 @@ class Canonicalize(Node):
 
         return "".join(text)
 
-    def eval(self):
-        return " ".join(self._mutate(self._filter_searches()).split())
+    def eval(self, text: Node, search_results: Node):
+        filtered_searches = self._filter_searches(search_results.value)
+        return " ".join(self._mutate(text.value, filtered_searches).split())

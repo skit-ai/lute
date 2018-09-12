@@ -53,7 +53,9 @@ def mute(node: Node):
     if len(node.predecessors) == 0:
         return
     elif len(node.predecessors) == 1:
-        node.eval = lambda: node.predecessors[0].value
+        def _eval(self, *args, **kwargs):
+            return node.predecessors[0].value
+        node.eval = _eval
         node.muted = True
     if len(node.predecessors) > 1:
         raise RuntimeError("Cannot mute node with >1 fan-in")

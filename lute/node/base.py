@@ -69,6 +69,8 @@ class Node(metaclass=NodeMeta):
         self.evaluated = False
         self.predecessors = []
         self.successors = []
+        self.args = []
+        self.kwargs = {}
 
     @classmethod
     def __gen_id__(cls):
@@ -78,7 +80,7 @@ class Node(metaclass=NodeMeta):
     @property
     def value(self):
         if not self.evaluated:
-            self._output_val = self.eval()
+            self._output_val = self.eval(*self.args, **self.kwargs)
             self.evaluated = True
 
         return self._output_val
@@ -200,8 +202,8 @@ class BinOp(Node):
         else:
             return "{}-({})".format(suffix, self._id)
 
-    def eval(self):
-        return self.op(self.args[0].value, self.args[1].value)
+    def eval(self, a: Node, b: Node):
+        return self.op(a.value, b.value)
 
 
 class Constant(Node):
@@ -216,7 +218,7 @@ class Constant(Node):
     def eval(self):
         return self._value
 
-    def __call__(self, other: Node):
+    def __call__(self, *args, **kwargs):
         raise Exception("uncallable node")
 
 
@@ -225,7 +227,7 @@ class Variable(Node):
     def eval(self):
         return self._output_val
 
-    def __call__(self, other: Node):
+    def __call__(self, *args, **kwargs):
         raise Exception("uncallable node")
 
     @Node.value.setter
@@ -238,8 +240,8 @@ class Identity(Node):
     Passes on the value of input
     """
 
-    def eval(self):
-        return self.args[0].value
+    def eval(self, input):
+        return input.value
 
 
 class GraphNode(Node):
@@ -247,5 +249,5 @@ class GraphNode(Node):
     def __init__(self, g):
         self.g = g
 
-    def eval(self):
-        return self.g.run(*[a.value for a in self.args])
+    def eval(self, *args, **kwargs):
+        return self.g.run(*[a.value for a in args])

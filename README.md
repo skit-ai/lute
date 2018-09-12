@@ -241,8 +241,8 @@ BinAdd()                     # Finally we get 120
 
 ### Visualizer
 
-For creating visualizer like in the readme above, you can use the `plot_graph`
-function like the following:
+For creating visualizations like in the readme above, you can use the
+`plot_graph` function like the following:
 
 ```python
 from lute.graph.viz import plot_graph

@@ -86,7 +86,7 @@ class Node(metaclass=NodeMeta):
         return self._output_val
 
     @abstractmethod
-    def eval(self):
+    def eval(self, *args, **kwargs):
         """
         Perform actual evaluation steps for the node
         and return the output
@@ -240,8 +240,8 @@ class Identity(Node):
     Passes on the value of input
     """
 
-    def eval(self, input):
-        return input.value
+    def eval(self, _input):
+        return _input.value
 
 
 class GraphNode(Node):

@@ -1,10 +1,10 @@
+import json
 import operator
-import pprint
 from abc import ABCMeta, abstractmethod
 from copy import deepcopy
-from typing import Any
+from typing import Any, Dict
 
-pp = pprint.PrettyPrinter(indent=2, width=50)
+from lute.utils import clip_to_len
 
 
 class NodeTuple:
@@ -48,7 +48,7 @@ class NodeMeta(ABCMeta):
 
                 original_init(self, *args, **kwargs)
                 self.name = name
-                self._id = cls.__gen_id__()
+                self.id = cls.__gen_id__()
 
             __init__.__wrapped__ = original_init
 
@@ -64,7 +64,7 @@ class Node(metaclass=NodeMeta):
     _count = -1
 
     def __init__(self, *args, **kwargs):
-        self._id = None
+        self.id = None
         self._output_val = None
         self.evaluated = False
         self.predecessors = []
@@ -139,10 +139,10 @@ class Node(metaclass=NodeMeta):
         return deepcopy(self)
 
     def __str__(self):
-        return self._id
+        return self.id
 
     def __hash__(self):
-        return hash(self._id)
+        return hash(self.id)
 
     def __mul__(self, other):
         if isinstance(other, Node):
@@ -169,22 +169,48 @@ class Node(metaclass=NodeMeta):
             raise TypeError("Unsupported right hand side")
 
     def name_str(self):
-        if self.name is not None:
-            return "{}-({})".format(self.name, self._id)
-        else:
-            return self._id
+        """
+        Unique identifier for the node (id) concatenated with the name
+        given by the programmer. This is used for:
 
-    def value_str(self, pretty=False):
-        if self.evaluated:
-            if pretty:
-                return pp.pformat(self.value)
-            else:
-                return repr(self.value)
+        1. Putting information in prints
+        2. Resolving node by string search
+        """
+
+        if self.name is not None:
+            return "{}-({})".format(self.name, self.id)
         else:
-            return "unevaluated"
+            return self.id
+
+    def to_dict(self) -> Dict:
+        """
+        Dump information in a dict.
+        """
+
+        return {
+            "name": self.name,
+            "id": self.id,
+            "evaluated": self.evaluated,
+            "value": self.value if self.evaluated else None
+        }
+
+    def dumps(self) -> str:
+        """
+        Dump the value in json readable string.
+        """
+
+        return json.dumps(self.to_dict())
+
+    def dumpb(self) -> bytes:
+        """
+        Dump to bytes. Default implementation just converts the output
+        of dumps to bytes.
+        """
+
+        return bytes(self.dumps(), "utf-8")
 
     def __repr__(self):
-        return "<{}: {}>".format(self.name_str(), self.value_str())
+        return "<{}: {}>".format(self.name_str(), clip_to_len(self.dumps(), maxlen=100))
 
 
 class BinOp(Node):
@@ -198,9 +224,9 @@ class BinOp(Node):
     def name_str(self):
         suffix = str(self.op)
         if self.name is not None:
-            return "{}-({})-({})".format(self.name, suffix, self._id)
+            return "{}-({})-({})".format(self.name, suffix, self.id)
         else:
-            return "{}-({})".format(suffix, self._id)
+            return "{}-({})".format(suffix, self.id)
 
     def eval(self, a: Node, b: Node):
         return self.op(a.value, b.value)

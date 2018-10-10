@@ -5,7 +5,7 @@ Visualization for graph
 import json
 import os
 import webbrowser
-from typing import Dict, List, Tuple
+from typing import Dict
 
 import pkg_resources
 
@@ -27,8 +27,8 @@ def generate_dagre_data(g: Graph) -> Dict:
             node_type = None
 
         return {
+            **node.to_dict(),
             "name": node.name_str(),
-            "value": node.value_str(pretty=True),
             "type": node_type
         }
 

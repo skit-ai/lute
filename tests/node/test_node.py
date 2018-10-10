@@ -9,16 +9,16 @@ def test_id():
     Variable._count = -1
 
     c = Constant(2)
-    assert c._id == 'Constant_0'
+    assert c.id == 'Constant_0'
 
     c1 = Constant(3)
-    assert c1._id == 'Constant_1'
+    assert c1.id == 'Constant_1'
 
     v = Variable()
-    assert v._id == 'Variable_0'
+    assert v.id == 'Variable_0'
 
     v1 = Variable()
-    assert v1._id == 'Variable_1'
+    assert v1.id == 'Variable_1'
 
 
 def test_names():

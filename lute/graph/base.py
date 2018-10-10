@@ -1,10 +1,11 @@
+import json
 import warnings
 from copy import deepcopy
 from typing import Any, Dict, List, Tuple, Union
 
 from pydash import py_
 
-from lute.node import GraphNode, Node, Variable
+from lute.node import Node, Variable
 from lute.node.utils import resolve, walk_node
 
 GraphInput = Union[List[Node], Node]
@@ -105,6 +106,24 @@ class Graph:
 
         for node in self._nodes:
             node.clear()
+
+    def to_dict(self) -> Dict:
+        raise NotImplementedError()
+
+    def dumps(self) -> str:
+        """
+        Dump the value in json readable string.
+        """
+
+        return json.dumps(self.to_dict())
+
+    def dumpb(self) -> bytes:
+        """
+        Dump to bytes. Default implementation just converts the output
+        of dumps to bytes.
+        """
+
+        return bytes(self.dumps(), "utf-8")
 
     def run(self, *args, values_dict: Dict[Variable, Any] = None):
         """

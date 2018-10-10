@@ -2,8 +2,8 @@
 Tests for graphs
 """
 
-from lute.graph import Graph, graph_node
-from lute.node import Constant, Identity, Variable
+from lute.graph import Graph
+from lute.node import Constant, GraphNode, Identity, Variable
 
 
 def test_run():
@@ -51,7 +51,7 @@ def test_graph_node():
     y = Constant(2)
 
     g = Graph(x, [x + y, y])
-    gn = graph_node(g)
+    gn = GraphNode(g)
 
     c = Constant(3)
     sg = Graph(c, gn(c))

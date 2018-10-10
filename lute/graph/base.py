@@ -132,7 +132,3 @@ class Graph:
         results = [output.value for output in self.outputs]
 
         return results[0] if len(results) == 1 else results
-
-
-def graph_node(g: Graph) -> Node:
-    return GraphNode(g)

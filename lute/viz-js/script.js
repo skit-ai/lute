@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
       label: simplifyName(node.name),
       labelStyle: `fill: ${fg}`,
       style: `fill: ${bg}; stroke: ${fg}`,
-      description: node.value
+      description: "<pre>"+JSON.stringify(node.value, null, 2)+"</pre>"
     }
     g.setNode(node.name, value)
   }
@@ -63,12 +63,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
   inner.selectAll('g.node')
     .attr('title', v => clipDescription(g.node(v).description))
-
+  let first = true
   inner.selectAll('g.node')
     .on('click', function (v) {
       let node = g.node(v)
+      if(first){
+        first = false
+        d3.select('.desc').append("pre").html(node.description)
+      } else {
+        d3.select('.desc').select("pre").html(node.description)
+      }
       d3.select('.title').text(node.label)
-      d3.select('.desc').text(node.description)
     })
 
   tippy('g.node', { size: 'large' })

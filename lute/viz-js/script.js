@@ -76,5 +76,5 @@ document.addEventListener('DOMContentLoaded', function () {
       d3.select('.title').text(node.label)
     })
 
-  tippy('g.node', { size: 'large' })
+  tippy('g.node', { size: 'small' })
 })

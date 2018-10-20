@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lute"
-version = "0.5.3"
+version = "0.5.4"
 description = "Framework for writing NLU pipelines"
 authors = []
 

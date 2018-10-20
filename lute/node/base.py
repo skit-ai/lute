@@ -34,6 +34,16 @@ class NodeTuple:
 
 
 class NodeMeta(ABCMeta):
+    """
+    Metaclass for Node to ease up a few things, notably:
+
+    1. Autogenerate Node ids for new instances.
+    2. Auto call super().__init__ for direct subclass of Node. This is not
+       really useful and breaks the mental model when we work with
+       sub-sub-classes (where you do need to call the super().__init__
+       method).
+    """
+
     def __new__(meta_cls, *args, **kwargs):
         cls = super().__new__(meta_cls, *args, **kwargs)
 
@@ -74,11 +84,21 @@ class Node(metaclass=NodeMeta):
 
     @classmethod
     def __gen_id__(cls):
+        """
+        Generate a unique identifier for the node instance. This involves using the class name
+        and the count of instances created.
+        """
+
         cls._count += 1
         return "%s_%s" % (cls.__name__, cls._count)
 
     @property
     def value(self):
+        """
+        Value of the node is the `value` that the nodal computation generates. It is created by
+        calling the eval function and, usually, cached.
+        """
+
         if not self.evaluated:
             self._output_val = self.eval(*self.args, **self.kwargs)
             self.evaluated = True
@@ -111,6 +131,12 @@ class Node(metaclass=NodeMeta):
                 succ.clear()
 
     def _register_predecessors(self, predecessors):
+        """
+        Register the given nodes as this node's predecessors. If a program needs to
+        walk through the connections, it just need to look for the `predecessors` and
+        `successors` properties of nodes.
+        """
+
         self.predecessors = predecessors
         for pred in predecessors:
             if self not in pred.successors:
@@ -128,6 +154,7 @@ class Node(metaclass=NodeMeta):
         """
         Default implementation of call, assumes nodes everywhere
         """
+
         inputs = list(args) + list(kwargs.values())
         self._register_predecessors([ip for ip in inputs if isinstance(ip, Node)])
         self.args = args
@@ -139,12 +166,22 @@ class Node(metaclass=NodeMeta):
         return deepcopy(self)
 
     def __str__(self):
+        """
+        `id` contains sufficient information about a node so we use this directly as
+        the node's string representation.
+        """
+
         return self.id
 
     def __hash__(self):
         return hash(self.id)
 
     def __mul__(self, other):
+        """
+        Create a node tuple with the other node, this then can be piped to
+        nodes demanding multiple input nodes.
+        """
+
         if isinstance(other, Node):
             return NodeTuple([self, other])
         else:
@@ -163,6 +200,11 @@ class Node(metaclass=NodeMeta):
             raise TypeError("Unknown right hand side encountered while piping")
 
     def __add__(self, other):
+        """
+        Overriding + operator so that basic things like list concatenation
+        work nicely.
+        """
+
         if isinstance(other, Node):
             return BinOp(operator.add)(self, other)
         else:
@@ -210,6 +252,11 @@ class Node(metaclass=NodeMeta):
         return bytes(self.dumps(), "utf-8")
 
     def __repr__(self):
+        """
+        Since repr shows up in repl, we put more information, including node's current
+        value, in here.
+        """
+
         return "<{}: {}>".format(self.name_str(), clip_to_len(self.dumps(), maxlen=100))
 
 
@@ -249,6 +296,10 @@ class Constant(Node):
 
 
 class Variable(Node):
+    """
+    Node which works as a variable and used for inputting things
+    in a graph.
+    """
 
     def eval(self):
         return self._output_val
@@ -271,6 +322,10 @@ class Identity(Node):
 
 
 class GraphNode(Node):
+    """
+    Node which considers a graph as a node itself. This doesn't show up
+    nicely in the visualizer as of now.
+    """
 
     def __init__(self, g):
         self.g = g

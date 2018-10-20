@@ -30,19 +30,41 @@ class Graph:
         self._nodes_map = {n.name_str(): n for n in self._nodes}
 
     def _all_nodes(self):
+        """
+        Return all the nodes involved in the graph.
+        """
+
         return py_.uniq(self._forward_nodes() + self._backward_nodes() + self.inputs + self.outputs)
 
     def _forward_nodes(self):
+        """
+        Return a list of all nodes accessible if we follow the input nodes.
+        """
+
         return py_.uniq(py_.flatten([walk_node(n) for n in self.inputs]))
 
     def _backward_nodes(self):
+        """
+        Return a list of all nodes accessible if we follow the output nodes.
+        """
+
         return py_.uniq(py_.flatten([walk_node(n, backward=True) for n in self.outputs]))
 
     def set_param(self, param: Union[Param, str], value: Any):
+        """
+        Set the value to a param in the graph. The param is first found using the
+        resolver. If there is a unique parameter present, then its value is changed.
+        """
+
         n, attr = self._resolve_param_node(param)
         setattr(n, attr, value)
 
     def _resolve_param_node(self, param: Union[Param, str]) -> Tuple[Node, str]:
+        """
+        Look for the param identifier in all the nodes and return the node and the
+        param string identifier.
+        """
+
         if isinstance(param, str):
             valid_nodes = [n for n in self._nodes if hasattr(n, param)]
             if len(valid_nodes) == 1:
@@ -53,6 +75,10 @@ class Graph:
             return self._nodes_map[param[0].name_str()], param[1]
 
     def resolve_node(self, i: NodeId):
+        """
+        Look for the node id in the graph's list of nodes.
+        """
+
         return resolve(i, self._nodes)
 
     def subgraph(self, input: GraphIdInput = None, output: GraphIdOutput = None):
@@ -127,7 +153,21 @@ class Graph:
 
     def run(self, *args, values_dict: Dict[Variable, Any] = None):
         """
-        Run the values
+        Run the graph using values passed.
+
+        If `values_dict` are passed they take priority. `values_dict` contains
+        a map of Variable nodes to the values they should take for this run.
+        For example:
+
+        ```python
+        x = Variable()
+        g = Graph(x, Identity(x))
+
+        g.run(values_dict={x: "Hello world"})
+        ```
+
+        Otherwise, `args` is assumed to represent the values of all the inputs
+        which are Variables (sequentially).
         """
 
         self.clear()

@@ -1,3 +1,5 @@
+/* global d3 tippy dagreD3 data */
+
 function simplifyName (nodeName) {
   let brk = nodeName.indexOf('__')
   if (brk > -1) {
@@ -35,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
       label: simplifyName(node.name),
       labelStyle: `fill: ${fg}`,
       style: `fill: ${bg}; stroke: ${fg}`,
-      description: "<pre>"+JSON.stringify(node.value, null, 2)+"</pre>"
+      description: '<pre>' + JSON.stringify(node.value, null, 2) + '</pre>'
     }
     g.setNode(node.name, value)
   }
@@ -49,17 +51,15 @@ document.addEventListener('DOMContentLoaded', function () {
   let svg = d3.select('svg')
   let inner = svg.append('g')
 
-  let zoom = d3.zoom()
-      .on('zoom', function() {
-        inner.attr('transform', d3.event.transform)
-      })
+  let zoom = d3.zoom().on('zoom', function () {
+    inner.attr('transform', d3.event.transform)
+  })
 
   render(inner, g)
   svg.call(zoom)
 
   let { height, width } = svg.node().getBoundingClientRect()
-  svg.call(zoom.transform,
-           d3.zoomIdentity.translate((width - g.graph().width) / 2, (height - g.graph().height) / 2))
+  svg.call(zoom.transform, d3.zoomIdentity.translate((width - g.graph().width) / 2, (height - g.graph().height) / 2))
 
   inner.selectAll('g.node')
     .attr('title', v => clipDescription(g.node(v).description))
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
   inner.selectAll('g.node')
     .on('click', function (v) {
       let node = g.node(v)
-      if(first){
+      if (first) {
         first = false
         d3.select('.desc').append("pre").html(node.description)
       } else {

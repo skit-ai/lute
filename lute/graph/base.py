@@ -151,6 +151,10 @@ class Graph:
 
         return bytes(self.dumps(), "utf-8")
 
+    @property
+    def type(self):
+        return [output.type for output in self.outputs]
+
     def run(self, *args, values_dict: Dict[Variable, Any] = None):
         """
         Run the graph using values passed.

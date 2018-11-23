@@ -51,13 +51,14 @@ class NodeMeta(ABCMeta):
         if cls.__name__ != base_cls:
             original_init = cls.__init__
 
-            def __init__(self, *args, name=None, **kwargs):
+            def __init__(self, *args, name=None, type=None, **kwargs):
                 if base_cls in [c.__name__ for c in cls.__bases__]:
                     # Only auto call super for the direct children of base_cls
                     super(cls, self).__init__(*args, **kwargs)
 
                 original_init(self, *args, **kwargs)
                 self.name = name
+                self._type = type
                 self.id = cls.__gen_id__()
 
             __init__.__wrapped__ = original_init
@@ -104,6 +105,10 @@ class Node(metaclass=NodeMeta):
             self.evaluated = True
 
         return self._output_val
+
+    @property
+    def type(self):
+        return self._type
 
     @abstractmethod
     def eval(self, *args, **kwargs):
@@ -268,6 +273,14 @@ class BinOp(Node):
     def __init__(self, op):
         self.op = op
 
+    @property
+    def type(self):
+        if self.predecessors:
+            # NOTE: Assuming the type to be the same for all components
+            return self.predecessors[0].type
+        else:
+            return self._type
+
     def name_str(self):
         suffix = str(self.op)
         if self.name is not None:
@@ -287,6 +300,10 @@ class Constant(Node):
 
     def __init__(self, value: Any):
         self._value = value
+
+    @property
+    def type(self):
+        return type(self._value)
 
     def eval(self):
         return self._value
@@ -317,6 +334,13 @@ class Identity(Node):
     Passes on the value of input
     """
 
+    @property
+    def type(self):
+        if self.predecessors:
+            return self.predecessors[0].type
+        else:
+            return self._type
+
     def eval(self, _input):
         return _input.value
 
@@ -329,6 +353,10 @@ class GraphNode(Node):
 
     def __init__(self, g):
         self.g = g
+
+    @property
+    def type(self):
+        return self.g.type
 
     def eval(self, *args, **kwargs):
         return self.g.run(*[a.value for a in args])

@@ -1,7 +1,64 @@
 from lute.graph import Graph
-from lute.node import Constant, Identity, Variable
+from lute.node import Constant, Identity, Node, Variable
 from lute.node.fn import fn_node, node_fn
 from lute.node.search import ListSearch
+
+
+def test_super():
+    """
+    Test that super class behavior is okay
+    """
+
+    class A(Node):
+        def __init__(self):
+            self.it = "kek"
+
+        def eval(self):
+            return 1
+
+    class B(A):
+        def eval(self):
+            return 1
+
+    assert B().it == "kek"
+
+    class C(A):
+        def __init__(self):
+            pass
+
+        def eval(self):
+            return 1
+
+    assert not hasattr(C(), "it")
+
+    class D(A):
+        def __init__(self):
+            super().__init__(name="name")
+
+        def eval(self):
+            return 1
+
+    assert D().it == "kek"
+    assert D().name == "name"
+    assert D(name="over").name == "over"
+
+    class E(D):
+        def __init__(self):
+            super().__init__()
+
+        def eval(self):
+            return 1
+
+    assert E().it == "kek"
+
+    class F(D):
+        def __init__(self):
+            pass
+
+        def eval(self):
+            return 1
+
+    assert not hasattr(F(), "it")
 
 
 def test_id():

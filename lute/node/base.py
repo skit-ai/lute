@@ -38,28 +38,31 @@ class NodeMeta(ABCMeta):
     Metaclass for Node to ease up a few things, notably:
 
     1. Autogenerate Node ids for new instances.
-    2. Auto call super().__init__ for direct subclass of Node. This is not
-       really useful and breaks the mental model when we work with
-       sub-sub-classes (where you do need to call the super().__init__
-       method).
+    2. Setup a few parameters without needing to call super.
     """
 
     def __new__(meta_cls, *args, **kwargs):
         cls = super().__new__(meta_cls, *args, **kwargs)
+
+        def set_safe(obj, var: str, val):
+            if not hasattr(obj, var) or val:
+                setattr(obj, var, val)
 
         base_cls = "Node"
         if cls.__name__ != base_cls:
             original_init = cls.__init__
 
             def __init__(self, *args, name=None, type=None, **kwargs):
-                if base_cls in [c.__name__ for c in cls.__bases__]:
-                    # Only auto call super for the direct children of base_cls
-                    super(cls, self).__init__(*args, **kwargs)
-
                 original_init(self, *args, **kwargs)
-                self.name = name
-                self._type = type
-                self.id = cls.__gen_id__()
+                set_safe(self, "id", cls.__gen_id__())
+                set_safe(self, "name", name)
+                set_safe(self, "_type", type)
+                set_safe(self, "_output_val", None)
+                set_safe(self, "evaluated", False)
+                set_safe(self, "predecessors", [])
+                set_safe(self, "successors", [])
+                set_safe(self, "args", [])
+                set_safe(self, "kwargs", {})
 
             __init__.__wrapped__ = original_init
 
@@ -73,15 +76,6 @@ class Node(metaclass=NodeMeta):
     Base class for all nodes
     """
     _count = -1
-
-    def __init__(self, *args, **kwargs):
-        self.id = None
-        self._output_val = None
-        self.evaluated = False
-        self.predecessors = []
-        self.successors = []
-        self.args = []
-        self.kwargs = {}
 
     @classmethod
     def __gen_id__(cls):

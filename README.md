@@ -83,17 +83,6 @@ from lute.node.fn import fn_node, node_fn
 
 
 class Frequency(Node):
-
-    def __init__(self):
-        # No need to call super's init if you are directly
-        # inheriting from the main Node class.
-        # But, if you are inheriting from a class which is below
-        # Node, you will need to call super.
-
-        # This is also optional to implement and is only needed
-        # if you need to set a few configuration params
-        pass
-
     def eval(self, token_node):
         # This is the main function which actually does the
         # computation.

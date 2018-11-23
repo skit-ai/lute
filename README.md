@@ -139,6 +139,35 @@ g = Graph([tokens, audio], sentiment)
 g.run([<tokens>, <audio-data>])
 ```
 
+## Extras
+
+### Types
+
+You can specify the type for nodes by passing `type` as a keyword argument when
+instantiating the node. The default way to access a node's type is to use
+`node.type` property. There is no constraint in what the _types_ can be, native
+python types, strings, numbers etc. The idea is to just have a sense of type
+conformity so that we can ensure a few properties across the plumbing.
+
+Since a lot of types can just be inferred knowing the types of the input, you
+could implement generic type inference tricks in general purpose nodes. For
+example, the `Identity` node, which passes the value of its input, has the
+following implementation of `type`:
+
+```python
+@property
+def type(self):
+    if self.predecessors:
+        return self.predecessors[0].type
+    else:
+        return self._type
+```
+
+Types also helps tools which work on black box graphs to reason about things.
+For example titan takes a graph with arbitrary input and wants to check it by
+passing certain input. Knowing the types of inputs lets it pass the correct test
+data.
+
 ## Sugars
 
 ### Porting eager functions

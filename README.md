@@ -157,6 +157,25 @@ For example titan takes a graph with arbitrary input and wants to check it by
 passing certain input. Knowing the types of inputs lets it pass the correct test
 data.
 
+### Node resolution
+
+References to specific node in the graph can be found by passing `NodeId` to the
+method `resolve_node`. `NodeId` can either be a `Node` object or a string (case
+sensitive) which can uniquely identify a node among all the options. The string
+is looked up for a match in the `name` and `id` of the node. In case a match is
+not found, or multiple matches are found, resolution fails with an error.
+
+### Subgraphs
+
+To extract a part of the graph, you need to pass the input and output nodes
+(using `NodeId`s or lists of those) to the `subgraph` method of graph. Since it
+returns a new graph with the same nodes referenced, it's better to call `.clone`
+on the original graph before doing this.
+
+> Cloning and sharing nodes might have unexpected consequences if there are
+> shared resource (like a subprocess initialized in a node) and we need to
+> confirm if these are really isolated.
+
 ## Sugars
 
 ### Porting eager functions

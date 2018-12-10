@@ -41,7 +41,7 @@ def patch_node(node: Node):
         par_time = 0
         for par_node in node.predecessors:
             if par_node.id not in blacklist:
-                par_time += par_node.benchmark["eval_time"]
+                par_time += par_node.benchmark.get("eval_time", 0)
 
         node.benchmark["self_eval_time"] = node.benchmark["eval_time"] - par_time
         return out

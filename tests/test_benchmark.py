@@ -63,16 +63,17 @@ def test_self_time():
     d2 = DizzyNode(sleep_time)
     di1 = DizzyInputNode(sleep_time)
     di2 = DizzyInputNode(sleep_time)
+    di3 = DizzyInputNode(sleep_time)
 
     di1(x + d1)
     di2(di1 + d2)
+    di3(d2)
 
-    g = Graph(x, di2)
+    out = di2 + d2 + di3
+    g = Graph(x, out)
 
     bm.patch_graph(g)
     g.run("hehe")
-
-    bm.calculate_self_time_graph(g)
 
     delta = sleep_time / 10
     assert sleep_time < d1.benchmark["eval_time"] < sleep_time + delta
@@ -86,3 +87,11 @@ def test_self_time():
 
     assert 4 * sleep_time < di2.benchmark["eval_time"] < 4 * sleep_time + delta
     assert sleep_time < di2.benchmark["self_eval_time"] < sleep_time + delta
+
+    assert sleep_time < di3.benchmark["eval_time"] < sleep_time + delta
+    assert sleep_time < di3.benchmark["self_eval_time"] < sleep_time + delta
+
+    assert 5 * sleep_time < out.benchmark["eval_time"] < 5 * sleep_time + delta
+    assert 0 < out.benchmark["self_eval_time"] < delta
+
+    assert 5 * sleep_time < g.benchmark["run_time"] < 5 * sleep_time + delta

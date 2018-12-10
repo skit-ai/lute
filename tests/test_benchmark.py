@@ -28,12 +28,12 @@ def test_node():
     n = DizzyNode(sleep_time)
     n.eval()
 
-    assert not hasattr(n, "benchmark")
+    assert not bm.node_has_benchmark(n)
 
     bm.patch_node(n)
     n.eval()
 
-    assert hasattr(n, "benchmark")
+    assert bm.node_has_benchmark(n)
     assert n.benchmark["eval_time"] >= sleep_time
 
 
@@ -46,12 +46,12 @@ def test_graph():
     g = Graph(x, d + c)
     g.run("this is ignored")
 
-    assert not hasattr(g, "benchmark")
+    assert not bm.graph_has_benchmark(g)
 
     bm.patch_graph(g)
     g.run("still ignored")
 
-    assert hasattr(g, "benchmark")
+    assert bm.graph_has_benchmark(g)
     assert g.benchmark["run_time"] >= sleep_time
 
 
@@ -73,6 +73,9 @@ def test_self_time():
     g.run("hehe")
 
     bm.calculate_self_time_graph(g)
+
+    import pdb
+    pdb.set_trace()
 
     delta = sleep_time / 10
     assert sleep_time < d1.benchmark["eval_time"] < sleep_time + delta

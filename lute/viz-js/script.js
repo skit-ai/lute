@@ -14,6 +14,15 @@ function clipDescription (nodeDesc) {
   return nodeDesc.slice(0, maxlen)
 }
 
+function genDescription (node) {
+  let desc = '<pre>' + JSON.stringify(node.value, null, 2) + '</pre>'
+  if (node.time) {
+    return `<div>T: ${node.time}</div> ${desc}`
+  } else {
+    return desc
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   let g = new dagreD3.graphlib.Graph().setGraph({})
 
@@ -37,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
       label: simplifyName(node.name),
       labelStyle: `fill: ${fg}`,
       style: `fill: ${bg}; stroke: ${fg}`,
-      description: '<pre>' + JSON.stringify(node.value, null, 2) + '</pre>'
+      description: genDescription(node)
     }
     g.setNode(node.name, value)
   }
@@ -63,16 +72,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   inner.selectAll('g.node')
     .attr('title', v => clipDescription(g.node(v).description))
-  let first = true
+
   inner.selectAll('g.node')
     .on('click', function (v) {
       let node = g.node(v)
-      if (first) {
-        first = false
-        d3.select('.desc').append("pre").html(node.description)
-      } else {
-        d3.select('.desc').select("pre").html(node.description)
-      }
+      d3.select('.desc').html(node.description)
       d3.select('.title').text(node.label)
     })
 

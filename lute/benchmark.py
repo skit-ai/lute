@@ -8,12 +8,20 @@ from lute.graph import Graph
 from lute.node import Node
 
 
+def node_has_benchmark(node: Node) -> bool:
+    return hasattr(node, "benchmark")
+
+
+def graph_has_benchmark(g: Graph) -> bool:
+    return hasattr(g, "benchmark") and all(node_has_benchmark(n) for n in g._nodes)
+
+
 def patch_node(node: Node):
     """
     Patch the node to keep timing info for the eval function
     """
 
-    if hasattr(node, "benchmark"):
+    if node_has_benchmark(node):
         raise RuntimeError(f"Node {node} already has benchmarking code")
 
     node.benchmark = {}
@@ -34,7 +42,7 @@ def patch_graph(g: Graph):
     Patch the graph to keep timing info
     """
 
-    if hasattr(g, "benchmark"):
+    if graph_has_benchmark(g):
         raise RuntimeError(f"Graph {g} already as benchmarking code")
 
     g.benchmark = {}

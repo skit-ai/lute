@@ -9,6 +9,7 @@ from typing import Dict
 
 import pkg_resources
 
+from lute.benchmark import graph_has_benchmark
 from lute.graph.base import Graph
 from lute.node.base import Node
 
@@ -17,6 +18,8 @@ def generate_dagre_data(g: Graph) -> Dict:
     """
     Generate json data for dagre
     """
+
+    add_benchmark = graph_has_benchmark(g)
 
     def _node_to_dict(node: Node) -> Dict:
         if node in g.inputs:
@@ -29,7 +32,8 @@ def generate_dagre_data(g: Graph) -> Dict:
         return {
             **node.to_dict(),
             "name": node.name_str(),
-            "type": node_type
+            "type": node_type,
+            "time": node.benchmark["self_eval_time"] if add_benchmark else None
         }
 
     graph = {

@@ -74,9 +74,6 @@ def test_self_time():
 
     bm.calculate_self_time_graph(g)
 
-    import pdb
-    pdb.set_trace()
-
     delta = sleep_time / 10
     assert sleep_time < d1.benchmark["eval_time"] < sleep_time + delta
     assert sleep_time < d1.benchmark["self_eval_time"] < sleep_time + delta

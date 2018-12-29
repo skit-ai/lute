@@ -58,7 +58,7 @@ def replace_subexpr(pattern: str, expansions: Dict[str, List[str]]) -> str:
             warnings.warn(f"Term {term} not found in expansions")
             replacements.append("")
         else:
-            replacements.append(make_optional_pattern(expansions[term], word_break=False))
+            replacements.append(make_optional_pattern(expansions[term], word_break=False).pattern)
 
     return range_replace(pattern, ranges, replacements)
 

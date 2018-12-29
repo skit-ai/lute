@@ -39,7 +39,7 @@ def make_optional_pattern(items: List[str], word_break=True) -> str:
     if word_break:
         return re.compile(r"\b" + r"\b|\b".join(items) + r"\b", re.I | re.UNICODE)
     else:
-        return re.compile(r"(" + r")|(".join(items) + r")", re.I | re.UNICODE)
+        return re.compile(r"((" + r")|(".join(items) + r"))", re.I | re.UNICODE)
 
 
 def replace_subexpr(pattern: str, expansions: Dict[str, List[str]]) -> str:

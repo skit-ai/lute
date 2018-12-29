@@ -143,9 +143,9 @@ def test_expansion_regex_hi():
 
 
 @pytest.mark.parametrize("text, output", [
-    ("hello {EX:this_is}", "hello (that)|(and)"),
-    ("hello {EX:this is}", "hello (that)"),
-    ("hello {EX:this is} and {EX:that}", "hello (that) and (A)|(B)|(C)")
+    ("hello {EX:this_is}", "hello ((that)|(and))"),
+    ("hello {EX:this is}", "hello ((that))"),
+    ("hello {EX:this is} and {EX:that}", "hello ((that)) and ((A)|(B)|(C))")
 ])
 def test_replace_subexpr(text, output):
     expansions = {
@@ -155,6 +155,28 @@ def test_replace_subexpr(text, output):
     }
 
     assert replace_subexpr(text, expansions) == output
+
+
+@pytest.mark.parametrize("text, output", [
+    ("hello E", []),
+    ("hello A", ["intent_one"]),
+    ("hello A and no, no B but that", ["intent_two", "intent_one"]),
+])
+def test_pattern_match(text, output):
+    expansions = {
+        "this_is": ["that", "and"],
+        "this is": ["that"],
+        "that": ["A", "B", "C"]
+    }
+
+    cls_patterns = {
+        "intent_one": ["hello {EX:that}"],
+        "intent_two": ["no, no {EX:that} but {EX:this_is}"]
+    }
+
+    fn = node_fn(PatternMatch(cls_patterns, expansions))
+
+    assert [label for label, _ in fn(text)] == output
 
 
 def test_canonicalization():

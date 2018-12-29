@@ -4,10 +4,9 @@ Some utitlies for nodes
 
 from typing import List, Union
 
-from pydash import py_
-
 from lute.exceptions import ResolutionException
 from lute.node import Node
+from pydash import py_
 
 NodeId = Union[str, Node]
 

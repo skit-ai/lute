@@ -1,5 +1,4 @@
 import pytest
-
 from lute.graph import Graph
 from lute.node import Constant, Identity, Variable
 from lute.node.fn import fn_node
@@ -50,6 +49,22 @@ def test_mute_fail():
 
     with pytest.raises(RuntimeError):
         mute(c)
+
+
+def test_mute_fn():
+    a = Variable()
+    b = Constant(2)
+
+    def add(x, y):
+        return x + y
+
+    c = fn_node(add)()(a, b)
+    g = Graph([a, b], c)
+
+    assert g.run(1) == 3
+
+    mute(c, lambda self, a, b: 0)
+    assert g.run(3) == 0
 
 
 def test_subgraph_input():

@@ -2,7 +2,8 @@
 Some utitlies for nodes
 """
 
-from typing import List, Union
+import types
+from typing import Callable, List, Union
 
 from lute.exceptions import ResolutionException
 from lute.node import Node
@@ -44,20 +45,31 @@ def resolve(i: NodeId, nodes: List[Node]) -> Node:
         raise Exception("Unknown node if type")
 
 
-def mute(node: Node):
+def mute(node: Node, muting_fn: Callable = None):
     """
-    Make a node work as identity transformer
+    Make a node work as identity transformer. If muting_fn is
+    provided, it uses that to replace the evaluation method of the
+    node. For example, a node with two inputs which is having this eval
+
+    def eval(self, a, b):
+        return a.value + b.value
+
+    can be changed to always return 0 by doing:
+
+    mute(node, lambda self, a, b: 0)
     """
 
-    if len(node.predecessors) == 0:
+    if node.fan_in == 0:
         return
-    elif len(node.predecessors) == 1:
-        def _eval(self, *args, **kwargs):
-            return node.predecessors[0].value
-        node.eval = _eval
-        node.muted = True
-    if len(node.predecessors) > 1:
-        raise RuntimeError("Cannot mute node with >1 fan-in")
+
+    if muting_fn is None:
+        if node.fan_in == 1:
+            def muting_fn(self, a): return a.value
+        else:
+            raise RuntimeError("Cannot mute node with >1 fan-in")
+
+    node.eval = types.MethodType(muting_fn, node)
+    node.muted = True
 
 
 def walk_node(node: Node, backward=False) -> List[Node]:

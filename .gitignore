@@ -97,3 +97,4 @@ ENV/
 /lute/viz-js/data.js
 
 tests/data/test_io_write.txt
+/poetry.lock

@@ -99,9 +99,13 @@ class PatternMatch(Node):
                 #       Mostly we might have been thinking about some edge case without
                 #       noting that down somwhere
                 if score > 0:
-                    classes.append((cls, score))
+                    classes.append({
+                        "type": "pattern",
+                        "name": cls,
+                        "score": score
+                    })
 
-        return sorted(classes, key=lambda c: c[1], reverse=True)
+        return sorted(classes, key=lambda c: c["score"], reverse=True)
 
 
 class ExpansionSearch(Node):

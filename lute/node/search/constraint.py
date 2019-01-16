@@ -65,15 +65,6 @@ class RankConstraints(Node):
     NOTE: We are not giving priority to lengths
     """
 
-    def __init__(self):
-        pass
-
-    def __call__(self, constraints: ConstraintSearch):
-        self._register_predecessors([constraints])
-        self._cons_node = constraints
-
-        return self
-
     def _match_score(self, constraint):
         """
         Return direct match score
@@ -101,8 +92,8 @@ class RankConstraints(Node):
 
         return output
 
-    def eval(self):
-        ranked = sorted([{**c, "score": self._match_score(c)} for c in self._cons_node.value],
+    def eval(self, constraints: ConstraintSearch):
+        ranked = sorted([{**c, "score": self._match_score(c)} for c in constraints.value],
                         key=lambda c: c["score"], reverse=True)
 
         try:

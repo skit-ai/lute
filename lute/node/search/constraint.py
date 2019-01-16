@@ -51,7 +51,23 @@ class ConstraintSearch(Node):
         Return constraints and missing keys
         """
 
-        results = [{"constraint": c, "missing": self._missing_keys(c)} for c in self.constraints]
+        def _match_score(c):
+            total = len(c["constraint"])
+            return 1 - (len(c["missing"]) / total)
+
+        results = []
+
+        for c in self.constraints:
+            missing_keys = self._missing_keys(c)
+            score = 1 - (len(missing_keys) / len(c))
+
+            results.append({
+                "constraint": c,
+                "missing": missing_keys,
+                "score": score
+            })
+
+        results = sorted(results, key=lambda c: c["score"], reverse=True)
 
         if self.partial:
             return py_.filter(results, lambda it: len(it["missing"]) < len(it["constraint"]))
@@ -64,14 +80,6 @@ class RankConstraints(Node):
     Rank constraints using some heuristics
     NOTE: We are not giving priority to lengths
     """
-
-    def _match_score(self, constraint):
-        """
-        Return direct match score
-        """
-
-        total = len(constraint["constraint"])
-        return 1 - (len(constraint["missing"]) / total)
 
     def _disambiguate(self, ranked, tf_scores):
         """
@@ -93,12 +101,9 @@ class RankConstraints(Node):
         return output
 
     def eval(self, constraints: ConstraintSearch):
-        ranked = sorted([{**c, "score": self._match_score(c)} for c in constraints.value],
-                        key=lambda c: c["score"], reverse=True)
-
         try:
-            tf = TfidfVectorizer().fit_transform([" ".join(c["constraint"].values()) for c in ranked])
+            tf = TfidfVectorizer().fit_transform([" ".join(c["constraint"].values()) for c in constraints.value])
             tf_scores = tf.todense().sum(axis=1)
-            return self._disambiguate(ranked, tf_scores)
+            return self._disambiguate(constraints.value, tf_scores)
         except ValueError:
-            return ranked
+            return constraints.value

@@ -176,7 +176,7 @@ def test_pattern_match(text, output):
 
     fn = node_fn(PatternMatch(cls_patterns, expansions))
 
-    assert [label for label, _ in fn(text)] == output
+    assert [it["name"] for it in fn(text)] == output
 
 
 def test_canonicalization():

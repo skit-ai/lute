@@ -74,13 +74,13 @@ class PatternMatch(Node):
         self.expansions = expansions
         self.patterns = self._prepare_patterns(cls_patterns)
 
-    def _prepare_patterns(self, cls_patterns: Dict[str, List[str]]):
+    def _prepare_patterns(self, cls_patterns: Dict[str, List[str]]) -> List[str]:
         final_patterns = {}
         for cls, patterns in cls_patterns.items():
             if self.expansions:
-                patterns = [replace_subexpr(it, self.expansions) for it in patterns]
-
-            final_patterns[cls] = make_optional_pattern(patterns, word_break=False)
+                final_patterns[cls] = [replace_subexpr(it, self.expansions) for it in patterns]
+            else:
+                final_patterns[cls] = []
 
         return final_patterns
 
@@ -91,19 +91,25 @@ class PatternMatch(Node):
         # Run through all the patterns
         classes = []
         for cls in self.patterns:
-            match = self.patterns[cls].search(text.value)
-            if match:
-                span = match.span()
-                score = (span[1] - span[0]) / len(text.value)
-                # TODO: Remove this filtering since this case should not be there.
-                #       Mostly we might have been thinking about some edge case without
-                #       noting that down somwhere
-                if score > 0:
-                    classes.append({
-                        "type": "pattern",
-                        "name": cls,
-                        "score": score
-                    })
+            max_match = None
+            max_score = 0
+            for patt in self.patterns[cls]:
+                match = re.search(patt, text.value)
+                if match:
+                    span = match.span()
+                    score = (span[1] - span[0]) / len(text.value)
+                    # TODO: Remove this filtering since this case should not be there.
+                    #       Mostly we might have been thinking about some edge case without
+                    #       noting that down somewhere
+                    if score > 0 and score > max_score:
+                        max_match = {
+                            "type": "pattern",
+                            "name": cls,
+                            "score": score
+                        }
+                        max_score = score
+            if max_match:
+                classes.append(max_match)
 
         return sorted(classes, key=lambda c: c["score"], reverse=True)
 

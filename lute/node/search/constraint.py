@@ -51,10 +51,6 @@ class ConstraintSearch(Node):
         Return constraints and missing keys
         """
 
-        def _match_score(c):
-            total = len(c["constraint"])
-            return 1 - (len(c["missing"]) / total)
-
         results = []
 
         for c in self.constraints:

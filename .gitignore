@@ -95,6 +95,7 @@ ENV/
 /pyproject.lock
 /lute/viz-js/data.json
 /lute/viz-js/data.js
+/lute/viz-js/.tern-port
 
 tests/data/test_io_write.txt
 /poetry.lock

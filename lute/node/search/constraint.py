@@ -2,14 +2,17 @@
 Constraint finding nodes
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 from pydash import py_
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from lute.node import Node
 
-Constraint = Dict[str, Any]
+# A constraint is a dictionary with two keys,
+# 1. `name`: Identifier of the constraint
+# 2. `items`: Items involved in the constraint
+Constraint = Dict[str, Union[str, Dict[str, Any]]]
 
 
 class ConstraintSearch(Node):
@@ -24,7 +27,7 @@ class ConstraintSearch(Node):
         self.keys = self._find_all_keys()
 
     def _find_all_keys(self) -> List[str]:
-        return py_.uniq(py_.flatten([list(c.keys()) for c in self.constraints]))
+        return py_.uniq(py_.flatten([list(c["items"].keys()) for c in self.constraints]))
 
     def __call__(self, input_map: Dict[str, Node]):
         if any([key not in input_map for key in self.keys]):
@@ -54,11 +57,13 @@ class ConstraintSearch(Node):
         results = []
 
         for c in self.constraints:
-            missing_keys = self._missing_keys(c)
-            score = 1 - (len(missing_keys) / len(c))
+            missing_keys = self._missing_keys(c["items"])
+            score = 1 - (len(missing_keys) / len(c["items"]))
 
             results.append({
-                "constraint": c,
+                "type": "constraint",
+                "name": c["name"],
+                "constraint": c["items"],
                 "missing": missing_keys,
                 "score": score
             })

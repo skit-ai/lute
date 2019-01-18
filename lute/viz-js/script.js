@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', function () {
     } else if (node.type === 'output') {
       bg = '#008080'
       fg = 'white'
-    } else if (node.value !== 'unevaluated') {
-      bg = '#ccc'
+    } else if (!node.evaluated) {
+      fg = '#ccc'
     }
 
     let value = {
@@ -51,8 +51,23 @@ document.addEventListener('DOMContentLoaded', function () {
     g.setNode(node.name, value)
   }
 
+  let shouldDisableEdge = edge => {
+    let nodeNames = data.nodes.filter(n => !n.evaluated).map(n => n.name)
+    return nodeNames.includes(edge[0]) || nodeNames.includes(edge[1])
+  }
+
   for (let edge of data.edges) {
-    g.setEdge(edge[0], edge[1], { arrowhead: 'vee' })
+    let arrowProps = { arrowhead: 'vee' }
+    let disabledShade = '#ccc'
+    if (shouldDisableEdge(edge)) {
+      g.setEdge(edge[0], edge[1], {
+        arrowheadStyle: `stroke: ${disabledShade}; fill: ${disabledShade};`,
+        style: `stroke: ${disabledShade}; fill: transparent;`,
+        ...arrowProps
+      })
+    } else {
+      g.setEdge(edge[0], edge[1], arrowProps)
+    }
   }
 
   let render = new dagreD3.render()

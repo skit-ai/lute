@@ -6,6 +6,8 @@ import warnings
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import regex as re
+from pydash import py_
+
 from lute.node import Node
 
 Range = Tuple[int, int]
@@ -243,3 +245,15 @@ class Canonicalize(Node):
     def eval(self, text: Node, search_results: Node):
         filtered_searches = self._filter_searches(search_results.value)
         return " ".join(self._mutate(text.value, filtered_searches).split())
+
+
+class PickbestIntents(Node):
+    """
+    Group intents based on name and take the best ones
+    """
+
+    def eval(self, intents: Node):
+        def _map_fn(intents):
+            return max(intents, key=lambda it: it["score"])
+
+        return py_.map(py_.group_by(intents.value, "name"), _map_fn)

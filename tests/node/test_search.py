@@ -161,7 +161,15 @@ def test_replace_subexpr(text, output):
 @pytest.mark.parametrize("text, output", [
     ("hello E", []),
     ("hello A", ["intent_one"]),
-    ("hello A and no, no B but that", ["intent_two", "intent_one"]),
+    ("hello A and no, no B but that C", ["intent_two", "intent_one"]),
+    ("hello A and no, no B but that", ["intent_two", "intent_three", "intent_one"]),
+    ("something", ["sm_neg"]),
+    ("more", []),
+    ("something and more", ["sm"]),
+    ("more and something", ["sm"]),
+    ("fallback more", ["sm_neg"]),
+    ("fallback more something", ["sm", "sm_neg"]),
+    ("more and something", ["sm"])
 ])
 def test_pattern_match(text, output):
     expansions = {
@@ -172,7 +180,10 @@ def test_pattern_match(text, output):
 
     cls_patterns = {
         "intent_one": ["hello {EX:that}"],
-        "intent_two": ["no, no {EX:that} but {EX:this_is}"]
+        "intent_two": ["no, no {EX:that} but {EX:this_is}"],
+        "intent_three": [["no, no {EX:that} but {EX:this_is}", "~C"]],
+        "sm": [["something", "more"]],
+        "sm_neg": [["something", "~more"], "fallback"]
     }
 
     fn = node_fn(PatternMatch(cls_patterns, expansions))

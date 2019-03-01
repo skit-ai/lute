@@ -10,6 +10,7 @@ from pydash import py_
 
 from lute.node import Node
 
+Pattern = Union[str, List[str]]
 Range = Tuple[int, int]
 
 
@@ -37,7 +38,7 @@ def range_replace(text: str, ranges: List[Range], replacements: Optional[Union[L
     return text
 
 
-def make_optional_pattern(items: List[str], word_break=True) -> str:
+def make_optional_pattern(items: List[str], word_break=True):
     if word_break:
         return re.compile(r"\b" + r"\b|\b".join(items) + r"\b", re.I | re.UNICODE)
     else:
@@ -51,7 +52,7 @@ def replace_subexpr(pattern: str, expansions: Dict[str, List[str]]) -> str:
 
     ranges = []
     replacements = []
-    for m in re.finditer("\{EX:(?P<subexpr>.+?)}", pattern, flags=re.I | re.UNICODE):
+    for m in re.finditer(r"\{EX:(?P<subexpr>.+?)}", pattern, flags=re.I | re.UNICODE):
         term = m.group("subexpr")
         span = m.span("subexpr")
         ranges.append((span[0] - 4, span[1] + 1))
@@ -65,6 +66,72 @@ def replace_subexpr(pattern: str, expansions: Dict[str, List[str]]) -> str:
     return range_replace(pattern, ranges, replacements)
 
 
+class Matcher:
+    """
+    Each matcher responds to one class.
+    """
+
+    def __init__(self, patterns: List[Pattern], expansions: Dict[str, List[str]] = None):
+        self.patterns = [
+            subpatts if isinstance(subpatts, list) else [subpatts]
+            for subpatts in patterns
+        ]
+
+        self.negative_prefix = "~"
+        self._validate_subpatts()
+
+        if expansions:
+            self._expand_patterns(expansions)
+
+    def _validate_subpatts(self):
+        """
+        Check that there are not only negatives in subpatts
+        """
+
+        for subpatts in self.patterns:
+            if all(patt.startswith(self.negative_prefix) for patt in subpatts):
+                raise RuntimeError("Cannot have all negative subpatterns.")
+
+    def _expand_patterns(self, expansions):
+        self.patterns = [
+            [replace_subexpr(patt, expansions) for patt in subpatts]
+            for subpatts in self.patterns
+        ]
+
+    def match(self, text: str):
+        all_matches = []
+
+        # We want all subpatts to match
+        for subpatts in self.patterns:
+            matches = []
+            for patt in subpatts:
+                negative = False
+                if patt.startswith(self.negative_prefix):
+                    patt = patt[1:]
+                    negative = True
+
+                match = re.search(patt, text, flags=re.I | re.U)
+
+                if negative:
+                    matches.append(not match)
+                else:
+                    matches.append(match)
+
+            if all(matches):
+                all_matches.extend(matches)
+
+        all_matches = [m for m in all_matches if not isinstance(m, bool)]
+
+        def _max_fn(m):
+            span = m.span()
+            return (span[1] - span[0]) / len(text)
+
+        if all_matches:
+            return max(all_matches, key=_max_fn)
+        else:
+            return None
+
+
 class PatternMatch(Node):
     """
     Pattern matching node. Allow sub expressions like the following:
@@ -72,48 +139,25 @@ class PatternMatch(Node):
     - ...
     """
 
-    def __init__(self, cls_patterns: Dict[str, List[str]], expansions: Dict[str, List[str]] = None):
-        self.expansions = expansions
-        self.patterns = self._prepare_patterns(cls_patterns)
-
-    def _prepare_patterns(self, cls_patterns: Dict[str, List[str]]) -> List[str]:
-        final_patterns = {}
-        for cls, patterns in cls_patterns.items():
-            if self.expansions:
-                final_patterns[cls] = [replace_subexpr(it, self.expansions) for it in patterns]
-            else:
-                final_patterns[cls] = []
-
-        return final_patterns
+    def __init__(self, cls_patterns: Dict[str, List[Pattern]], expansions: Dict[str, List[str]] = None):
+        self.matchers = {cls: Matcher(patterns, expansions) for cls, patterns in cls_patterns.items()}
 
     def eval(self, text: Node):
         if not text.value:
             return []
 
-        # Run through all the patterns
-        classes = []
-        for cls in self.patterns:
-            max_match = None
-            max_score = 0
-            for patt in self.patterns[cls]:
-                match = re.search(patt, text.value)
-                if match:
-                    span = match.span()
-                    score = (span[1] - span[0]) / len(text.value)
-                    # TODO: Remove this filtering since this case should not be there.
-                    #       Mostly we might have been thinking about some edge case without
-                    #       noting that down somewhere
-                    if score > 0 and score > max_score:
-                        max_match = {
-                            "type": "pattern",
-                            "name": cls,
-                            "score": score
-                        }
-                        max_score = score
-            if max_match:
-                classes.append(max_match)
+        output = []
+        for cls, matcher in self.matchers.items():
+            match = matcher.match(text.value)
+            if match:
+                span = match.span()
+                output.append({
+                    "type": "pattern",
+                    "name": cls,
+                    "score": (span[1] - span[0]) / len(text.value)
+                })
 
-        return sorted(classes, key=lambda c: c["score"], reverse=True)
+        return sorted(output, key=lambda it: it["score"], reverse=True)
 
 
 class ExpansionSearch(Node):

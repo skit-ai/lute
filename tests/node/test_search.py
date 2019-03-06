@@ -191,6 +191,16 @@ def test_pattern_match(text, output):
     assert [it["name"] for it in fn(text)] == output
 
 
+@pytest.mark.parametrize("cls_patterns", [
+    {"all_neg_1": ["~hello", "~world"]},
+    {"all_neg_2": [["~hello", "~world"]]},
+    {"empty": ["(yes)? ?(not)?"]}
+])
+def test_pattern_errors(cls_patterns):
+    with pytest.raises(RuntimeError):
+        PatternMatch(cls_patterns)
+
+
 def test_canonicalization():
     exp = {
         "hello": ["hola", "hello", "hey"],

@@ -85,12 +85,21 @@ class Matcher:
 
     def _validate_subpatts(self):
         """
-        Check that there are not only negatives in subpatts
+        Check that:
+        - there are not only negatives in subpatts
+        - no pattern matches empty string
         """
 
         for subpatts in self.patterns:
             if all(patt.startswith(self.negative_prefix) for patt in subpatts):
                 raise RuntimeError("Cannot have all negative subpatterns.")
+
+        for subpatts in self.patterns:
+            for patt in subpatts:
+                if patt.startswith(self.negative_prefix):
+                    patt = patt[1:]
+                if re.search(patt, "") or re.search(patt, " "):
+                    raise RuntimeError(f"Pattern `{patt}` matches empty string")
 
     def _expand_patterns(self, expansions):
         self.patterns = [

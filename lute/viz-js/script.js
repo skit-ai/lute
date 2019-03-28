@@ -10,8 +10,12 @@ function simplifyName (nodeName) {
 }
 
 function clipDescription (nodeDesc) {
-  let maxlen = 500
-  return nodeDesc.slice(0, maxlen)
+  let maxlen = 200
+  if (nodeDesc.length > (maxlen - 3)) {
+    return nodeDesc.slice(0, maxlen) + '...'
+  } else {
+    return nodeDesc
+  }
 }
 
 function genDescription (node) {

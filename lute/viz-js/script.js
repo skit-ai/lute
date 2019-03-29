@@ -19,7 +19,7 @@ function clipDescription (nodeDesc) {
 }
 
 function genDescription (node) {
-  let desc = '<pre>' + JSON.stringify(node.value, null, 2) + '</pre>'
+  let desc = JSON.stringify(node.value, null, 2)
   if (node.time) {
     return `<div>T: ${node.time}</div> ${desc}`
   } else {

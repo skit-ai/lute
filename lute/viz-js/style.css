@@ -49,7 +49,7 @@ svg {
 }
 
 #side-panel .desc {
-  font-family: 'monospace';
+  font-family: monospace;
   flex-wrap: wrap;
   font-size: 12px;
   width: 100%;

@@ -40,7 +40,7 @@ def range_replace(text: str, ranges: List[Range], replacements: Optional[Union[L
 
 def make_optional_pattern(items: List[str], word_break=True):
     if word_break:
-        return re.compile(r"\b" + r"\b|\b".join(items) + r"\b", re.I | re.UNICODE)
+        return re.compile(r"\b(" + r"|".join(items) + r")\b", re.I | re.UNICODE)
     else:
         return re.compile(r"((" + r")|(".join(items) + r"))", re.I | re.UNICODE)
 

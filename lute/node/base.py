@@ -240,7 +240,13 @@ class Node(metaclass=NodeMeta):
         Dump the value in json readable string.
         """
 
-        return json.dumps(self.to_dict())
+        try:
+            return json.dumps(self.to_dict())
+        except TypeError as e:
+            # This might be because of json serialization error. In such cases,
+            # we just put the error message in the value.
+            # NOTE: This looks like a bad idea though
+            return json.dumps({**self.to_dict(), "value": str(e)})
 
     def dumpb(self) -> bytes:
         """

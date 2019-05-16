@@ -22,6 +22,18 @@ function genDescription (node) {
   return JSON.stringify(node.value, null, 2)
 }
 
+/*
+ * Generate text to go in tooltip
+ */
+function genTooltip (node) {
+  let desc = genDescription(node)
+  if (node.time) {
+    return `⌛ ${node.time}<br>${desc}`
+  } else {
+    return desc
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   let g = new dagreD3.graphlib.Graph().setGraph({})
 
@@ -45,7 +57,8 @@ document.addEventListener('DOMContentLoaded', function () {
       label: simplifyName(node.name),
       labelStyle: `fill: ${fg}`,
       style: `fill: ${bg}; stroke: ${fg}`,
-      description: genDescription(node)
+      description: genDescription(node),
+      ttText: genTooltip(node)
     }
     g.setNode(node.name, value)
   }
@@ -85,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
   svg.call(zoom.transform, d3.zoomIdentity.translate((width - g.graph().width) / 2, (height - g.graph().height) / 2))
 
   inner.selectAll('g.node')
-    .attr('title', v => clipDescription(g.node(v).description))
+    .attr('title', v => clipDescription(g.node(v).ttText))
 
   inner.selectAll('g.node')
     .on('click', function (v) {

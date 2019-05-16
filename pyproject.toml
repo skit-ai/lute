@@ -5,9 +5,8 @@ description = "Framework for writing NLU pipelines"
 authors = []
 
 [tool.poetry.dependencies]
-python = "^3.5"
+python = "~3.6"
 pydash = "^4.6"
-requests = "^2.19"
 scikit-learn = "^0.20.0"
 scipy = "^1.1"
 regex = "2017.4.5"

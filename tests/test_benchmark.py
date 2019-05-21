@@ -2,7 +2,7 @@ import time
 
 import lute.benchmark as bm
 from lute.graph import Graph
-from lute.node import Constant, Node, Variable
+from lute.node import Constant, Identity, Node, Variable
 
 
 class DizzyNode(Node):
@@ -36,6 +36,22 @@ def test_node():
     assert bm.node_has_benchmark(n)
     assert len(n.benchmark["eval_times"]) == 1
     assert n.benchmark["eval_times"][-1] >= sleep_time
+
+
+def test_node_store():
+    n = Constant(1)
+    store_size = 2
+    bm.patch_node(n, store_size=store_size)
+
+    n.eval()
+    assert len(n.benchmark["eval_times"]) == 1
+    assert len(n.benchmark["self_eval_times"]) == 1
+
+    for _ in range(store_size * 2):
+        n.eval()
+
+    assert len(n.benchmark["eval_times"]) == store_size
+    assert len(n.benchmark["self_eval_times"]) == store_size
 
 
 def test_graph():
@@ -74,6 +90,27 @@ def test_graph_multiple_run():
 
     assert bm.graph_has_benchmark(g)
     assert len(g.benchmark["run_times"]) == 2
+
+
+def test_graph_store():
+    store_size = 3
+    x = Variable(name="input")
+    i = Identity()(x)
+
+    g = Graph(x, i)
+    bm.patch_graph(g, store_size)
+    g.run("something")
+
+    assert len(g.benchmark["run_times"]) == 1
+    for n in g._nodes:
+        assert len(n.benchmark["eval_times"]) == 1
+
+    for _ in range(store_size * 2):
+        g.run("something")
+
+    assert len(g.benchmark["run_times"]) == store_size
+    for n in g._nodes:
+        assert len(n.benchmark["eval_times"]) == store_size
 
 
 def test_self_time():

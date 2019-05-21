@@ -22,13 +22,35 @@ function genDescription (node) {
   return JSON.stringify(node.value, null, 2)
 }
 
+function timingStats (node) {
+  if (node.times.length === 1) {
+    return {
+      mu: node.times[0],
+      sigma: null
+    }
+  } else if (node.times.length > 1) {
+    let sum = node.times.reduce((acc, cur) => acc + cur)
+    let mu = sum / node.times.length
+
+    // Sample estimate
+    let sigmaSq = node.times.reduce((acc, cur) => acc + ((cur - mu) ** 2)) / (node.times.length - 1)
+    return {
+      mu: sum / node.times.length,
+      sigma: Math.sqrt(sigmaSq)
+    }
+  } else {
+    return null
+  }
+}
+
 /*
  * Generate text to go in tooltip
  */
 function genTooltip (node) {
   let desc = genDescription(node)
-  if (node.time) {
-    return `⌛ ${node.time}<br>${desc}`
+  let stats = timingStats(node)
+  if (stats) {
+    return `⌛ ${stats.mu} (σ ${stats.sigma})<br>${desc}`
   } else {
     return desc
   }

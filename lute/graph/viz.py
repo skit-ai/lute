@@ -8,6 +8,7 @@ import webbrowser
 from typing import Dict
 
 import pkg_resources
+
 from lute.benchmark import graph_has_benchmark
 from lute.graph.base import Graph
 from lute.node.base import Node
@@ -32,7 +33,7 @@ def generate_dagre_data(g: Graph) -> Dict:
             **node.to_dict(),
             "name": node.name_str(),
             "type": node_type,
-            "time": node.benchmark.get("self_eval_time") if add_benchmark else None
+            "times": node.benchmark.get("self_eval_times") if add_benchmark else None
         }
 
     graph = {

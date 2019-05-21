@@ -34,7 +34,8 @@ def test_node():
     n.eval()
 
     assert bm.node_has_benchmark(n)
-    assert n.benchmark["eval_time"] >= sleep_time
+    assert len(n.benchmark["eval_times"]) == 1
+    assert n.benchmark["eval_times"][-1] >= sleep_time
 
 
 def test_graph():
@@ -52,7 +53,27 @@ def test_graph():
     g.run("still ignored")
 
     assert bm.graph_has_benchmark(g)
-    assert g.benchmark["run_time"] >= sleep_time
+    assert len(g.benchmark["run_times"]) == 1
+    assert g.benchmark["run_times"][-1] >= sleep_time
+
+
+def test_graph_multiple_run():
+    sleep_time = 0.1
+    x = Variable(name="input")
+    c = Constant("lol")
+    d = DizzyNode(sleep_time)
+
+    g = Graph(x, d + c)
+    g.run("this is ignored")
+
+    assert not bm.graph_has_benchmark(g)
+
+    bm.patch_graph(g)
+    g.run("still ignored")
+    g.run("not really")
+
+    assert bm.graph_has_benchmark(g)
+    assert len(g.benchmark["run_times"]) == 2
 
 
 def test_self_time():
@@ -76,22 +97,22 @@ def test_self_time():
     g.run("hehe")
 
     delta = sleep_time / 10
-    assert sleep_time < d1.benchmark["eval_time"] < sleep_time + delta
-    assert sleep_time < d1.benchmark["self_eval_time"] < sleep_time + delta
+    assert sleep_time < d1.benchmark["eval_times"][-1] < sleep_time + delta
+    assert sleep_time < d1.benchmark["self_eval_times"][-1] < sleep_time + delta
 
-    assert sleep_time < d2.benchmark["eval_time"] < sleep_time + delta
-    assert sleep_time < d2.benchmark["self_eval_time"] < sleep_time + delta
+    assert sleep_time < d2.benchmark["eval_times"][-1] < sleep_time + delta
+    assert sleep_time < d2.benchmark["self_eval_times"][-1] < sleep_time + delta
 
-    assert 2 * sleep_time < di1.benchmark["eval_time"] < 2 * sleep_time + delta
-    assert sleep_time < di1.benchmark["self_eval_time"] < sleep_time + delta
+    assert 2 * sleep_time < di1.benchmark["eval_times"][-1] < 2 * sleep_time + delta
+    assert sleep_time < di1.benchmark["self_eval_times"][-1] < sleep_time + delta
 
-    assert 4 * sleep_time < di2.benchmark["eval_time"] < 4 * sleep_time + delta
-    assert sleep_time < di2.benchmark["self_eval_time"] < sleep_time + delta
+    assert 4 * sleep_time < di2.benchmark["eval_times"][-1] < 4 * sleep_time + delta
+    assert sleep_time < di2.benchmark["self_eval_times"][-1] < sleep_time + delta
 
-    assert sleep_time < di3.benchmark["eval_time"] < sleep_time + delta
-    assert sleep_time < di3.benchmark["self_eval_time"] < sleep_time + delta
+    assert sleep_time < di3.benchmark["eval_times"][-1] < sleep_time + delta
+    assert sleep_time < di3.benchmark["self_eval_times"][-1] < sleep_time + delta
 
-    assert 5 * sleep_time < out.benchmark["eval_time"] < 5 * sleep_time + delta
-    assert 0 < out.benchmark["self_eval_time"] < delta
+    assert 5 * sleep_time < out.benchmark["eval_times"][-1] < 5 * sleep_time + delta
+    assert 0 < out.benchmark["self_eval_times"][-1] < delta
 
-    assert 5 * sleep_time < g.benchmark["run_time"] < 5 * sleep_time + delta
+    assert 5 * sleep_time < g.benchmark["run_times"][-1] < 5 * sleep_time + delta

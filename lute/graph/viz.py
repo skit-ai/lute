@@ -8,7 +8,6 @@ import webbrowser
 from typing import Dict
 
 import pkg_resources
-
 from lute.benchmark import graph_has_benchmark
 from lute.graph.base import Graph
 from lute.node.base import Node
@@ -60,11 +59,16 @@ def generate_dagre_data(g: Graph) -> Dict:
     return graph
 
 
-def plot_graph(g: Graph, open_browser=True):
+def plot_graph(g: Graph, json_encoder=None, open_browser=True):
+    """
+    Create visualization for the given graph. If provided, pass given encoder
+    class in json.dumps.
+    """
+
     serve_dir = pkg_resources.resource_filename("lute", "viz-js")
 
     with open(os.path.join(serve_dir, "data.js"), "w", encoding='utf-8') as fp:
-        fp.write("let data = {}".format(json.dumps(generate_dagre_data(g), indent=2)))
+        fp.write("let data = {}".format(json.dumps(generate_dagre_data(g), cls=json_encoder, indent=2)))
 
     if open_browser:
         webbrowser.open("file://" + os.path.join(serve_dir, "index.html"))

@@ -1,12 +1,9 @@
 import pytest
-
 from lute.graph import Graph
 from lute.node import Variable
 from lute.node.fn import node_fn
 from lute.node.search.constraint import ConstraintSearch
-from lute.node.search.generic import (Canonicalize, ExpansionSearch,
-                                      ListSearch, PatternMatch,
-                                      replace_subexpr)
+from lute.node.search.generic import Canonicalize, ExpansionSearch, ListSearch
 
 
 def test_expansion():
@@ -141,64 +138,6 @@ def test_expansion_regex_hi():
         "value": "account",
         "range": (0, 6)
     }]
-
-
-@pytest.mark.parametrize("text, output", [
-    ("hello {EX:this_is}", "hello ((that)|(and))"),
-    ("hello {EX:this is}", "hello ((that))"),
-    ("hello {EX:this is} and {EX:that}", "hello ((that)) and ((A)|(B)|(C))")
-])
-def test_replace_subexpr(text, output):
-    expansions = {
-        "this_is": ["that", "and"],
-        "this is": ["that"],
-        "that": ["A", "B", "C"]
-    }
-
-    assert replace_subexpr(text, expansions) == output
-
-
-@pytest.mark.parametrize("text, output", [
-    ("hello E", []),
-    ("hello A", ["intent_one"]),
-    ("hello A and no, no B but that C", ["intent_two", "intent_one"]),
-    ("hello A and no, no B but that", ["intent_two", "intent_three", "intent_one"]),
-    ("something", ["sm_neg"]),
-    ("more", []),
-    ("something and more", ["sm"]),
-    ("more and something", ["sm"]),
-    ("fallback more", ["sm_neg"]),
-    ("fallback more something", ["sm", "sm_neg"]),
-    ("more and something", ["sm"])
-])
-def test_pattern_match(text, output):
-    expansions = {
-        "this_is": ["that", "and"],
-        "this is": ["that"],
-        "that": ["A", "B", "C"]
-    }
-
-    cls_patterns = {
-        "intent_one": ["hello {EX:that}"],
-        "intent_two": ["no, no {EX:that} but {EX:this_is}"],
-        "intent_three": [["no, no {EX:that} but {EX:this_is}", "~C"]],
-        "sm": [["something", "more"]],
-        "sm_neg": [["something", "~more"], "fallback"]
-    }
-
-    fn = node_fn(PatternMatch(cls_patterns, expansions))
-
-    assert [it["name"] for it in fn(text)] == output
-
-
-@pytest.mark.parametrize("cls_patterns", [
-    {"all_neg_1": ["~hello", "~world"]},
-    {"all_neg_2": [["~hello", "~world"]]},
-    {"empty": ["(yes)? ?(not)?"]}
-])
-def test_pattern_errors(cls_patterns):
-    with pytest.raises(RuntimeError):
-        PatternMatch(cls_patterns)
 
 
 def test_canonicalization():

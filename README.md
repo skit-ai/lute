@@ -2,6 +2,8 @@
 
 ![cheeseshop](https://cheeseshop.vernacular.ai/--badger--/lute.svg)
 
+> This is an old project and not maintained anymore.
+
 Lute is a framework for writing NLU pipelines. The attempt is to provide an easy
 way for writing composable modules that can be connected in arbitrary
 _Make-like_ way to create complex NLU pipelines.
